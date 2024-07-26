@@ -122,7 +122,7 @@ public class PriestShadow : Rotation
                     return true;
                 }
             }
-            if (Api.Spellbook.CanCast("Shadowform") && !me.Auras.Contains("Shadowform",false) && mana > 80)
+            if (Api.Spellbook.CanCast("Shadowform") && !me.Auras.Contains("Shadowform", false) && mana > 80)
             {
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Casting Shadowform");
@@ -135,54 +135,31 @@ public class PriestShadow : Rotation
         }
         var reaction = me.GetReaction(target);
 
-        if (target.IsValid())
-        { 
-            if (target.IsDead())
-            {
-                if (reaction != UnitReaction.Friendly && reaction != UnitReaction.Honored && reaction != UnitReaction.Revered && reaction != UnitReaction.Exalted)
-                {
-                    if (mana >= 5)
-                    {
-                        if (!IsNPC(target))
-                        {
-                            if (Api.Spellbook.CanCast("Smite"))
-                            {
-                                Console.ForegroundColor = ConsoleColor.Green;
-                                Console.WriteLine("Casting Smite");
-                                Console.ResetColor();
-                                if (Api.Spellbook.Cast("Smite"))
-                                {
-                                    return true;
-                                }
-                            }
-                            else
-                            {
-                                Console.WriteLine("Smite is not ready to be cast.");
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("Target is an NPC.");
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("Mana is not above 20%.");
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Target is friendly, honored, revered, or exalted.");
-                }
-            }
-            else
-            {
-                Console.WriteLine("Target is dead.");
-            }
-    }
 
-        return base.PassivePulse();
-    }
+        var reaction = me.GetReaction(target);
+        if (target.IsValid())
+        {
+            if (!target.IsDead() &&
+            (reaction != UnitReaction.Friendly &&
+             reaction != UnitReaction.Honored &&
+             reaction != UnitReaction.Revered &&
+             reaction != UnitReaction.Exalted) &&
+            mana > 20 && !IsNPC(target))
+            {
+                Console.WriteLine("Trying to cast Smite");
+
+                // Try casting Pyroblast
+                if (Api.Spellbook.CanCast("Smite"))
+                {
+                    Api.Spellbook.Cast("Smite");
+                    Console.WriteLine("Casting Smite");
+                    {
+                        return true;
+                    }
+                }
+
+                return base.PassivePulse();
+            }
 
 
     public override bool CombatPulse()
@@ -190,9 +167,9 @@ public class PriestShadow : Rotation
         var me = Api.Player;
         var target = Api.Target;
         var mana = me.ManaPercent;
-    if (!me.IsValid() || !target.IsValid() || me.IsDead() || me.IsGhost() || me.IsCasting() || me.IsMoving() || me.IsChanneling() || me.IsMounted() || me.Auras.Contains("Drink") || me.Auras.Contains("Food")) return false;
+        if (!me.IsValid() || !target.IsValid() || me.IsDead() || me.IsGhost() || me.IsCasting() || me.IsMoving() || me.IsChanneling() || me.IsMounted() || me.Auras.Contains("Drink") || me.Auras.Contains("Food")) return false;
 
-    if ((DateTime.Now - lastDebugTime).TotalSeconds >= debugInterval)
+        if ((DateTime.Now - lastDebugTime).TotalSeconds >= debugInterval)
         {
             LogPlayerStats();
             lastDebugTime = DateTime.Now; // Update lastDebugTime
@@ -274,7 +251,7 @@ public class PriestShadow : Rotation
             }
         }
 
-       
+
 
         if (Api.HasMacro("Hands"))
         {
@@ -357,7 +334,7 @@ public class PriestShadow : Rotation
             }
         }
 
-        if (Api.Spellbook.CanCast("Shadow Word: Pain") && !target.Auras.Contains(589)  && mana > 30)
+        if (Api.Spellbook.CanCast("Shadow Word: Pain") && !target.Auras.Contains(589) && mana > 30)
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Shadow Word: Pain");
