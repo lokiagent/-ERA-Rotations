@@ -34,7 +34,7 @@ public class EraFireMage : Rotation
     {
         return Api.Equipment.HasEnchantment(slot, enchantmentName);
     }
-   
+
 
 
     private bool HasItem(object item) => Api.Inventory.HasItem(item);
@@ -53,7 +53,7 @@ public class EraFireMage : Rotation
 
         // Assuming wShadow is an instance of some class containing UnitRatings property
         SlowTick = 750;
-        FastTick = 500 ;
+        FastTick = 500;
 
         // You can also use this method to add to various action lists.
 
@@ -87,7 +87,7 @@ public class EraFireMage : Rotation
         var mana = me.ManaPercent;
         var targetDistance = target.Position.Distance2D(me.Position);
 
-        if (me.IsDead() || me.IsGhost() || me.IsCasting() || me.IsMoving() || me.IsChanneling()  || me.Auras.Contains("Drink") || me.Auras.Contains("Food")) return false;
+        if (me.IsDead() || me.IsGhost() || me.IsCasting() || me.IsMoving() || me.IsChanneling() || me.Auras.Contains("Drink") || me.Auras.Contains("Food")) return false;
         var hasaura = me.Auras.Contains("Curse of Stalvan") || me.Auras.Contains("Curse of Blood");
         if (me.IsValid())
         {
@@ -230,7 +230,9 @@ public class EraFireMage : Rotation
                 {
                     Api.Spellbook.Cast("Pyroblast");
                     Console.WriteLine("Casting Pyroblast");
-                    return true;
+                    {
+                        return true;
+                    }
                 }
                 else
                 {
@@ -239,313 +241,338 @@ public class EraFireMage : Rotation
                     {
                         Console.WriteLine("Casting Frostbolt");
                         Api.Spellbook.Cast("Frostbolt");
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // If Pyroblast fails, try casting Frostbolt
+                if (Api.Spellbook.CanCast("Fireball"))
+                {
+                    Console.WriteLine("Casting Fireball");
+                    Api.Spellbook.Cast("Fireball");
+                    {
                         return true;
                     }
                 }
             }
-
-            // If none of the conditions are met or casting both spells fail
         }
+
+        // If none of the conditions are met or casting both spells fail
+    }
         return base.PassivePulse();
 
-    }
+}
 
-    public override bool CombatPulse()
+public override bool CombatPulse()
+{
+    // Variables for player and target instances
+    var me = Api.Player;
+    var target = Api.Target;
+    var healthPercentage = me.HealthPercent;
+    var targethealth = target.HealthPercent;
+
+    // Power percentages for different resources
+    var mana = me.ManaPercent;
+    if (me.IsDead() || me.IsGhost() || me.IsCasting() || me.IsMoving() || me.IsChanneling() || me.IsMounted() || me.Auras.Contains("Drink") || me.Auras.Contains("Food")) return false;
+
+    string[] HP = { "Major Healing Potion", "Superior Healing Potion", "Greater Healing Potion", "Healing Potion", "Lesser Healing Potion", "Minor Healing Potion" };
+    string[] MP = { "Major Mana Potion", "Superior Mana Potion", "Greater Mana Potion", "Mana Potion", "Lesser Mana Potion", "Minor Mana Potion" };
+    if (me.HealthPercent <= 70 && (!Api.Inventory.OnCooldown(MP) || !Api.Inventory.OnCooldown(HP)))
     {
-        // Variables for player and target instances
-        var me = Api.Player;
-        var target = Api.Target;
-        var healthPercentage = me.HealthPercent;
-        var targethealth = target.HealthPercent;
-
-        // Power percentages for different resources
-        var mana = me.ManaPercent;
-        if (me.IsDead() || me.IsGhost() || me.IsCasting() || me.IsMoving() || me.IsChanneling() || me.IsMounted() || me.Auras.Contains("Drink") || me.Auras.Contains("Food")) return false;
-
-        string[] HP = { "Major Healing Potion", "Superior Healing Potion", "Greater Healing Potion", "Healing Potion", "Lesser Healing Potion", "Minor Healing Potion" };
-        string[] MP = { "Major Mana Potion", "Superior Mana Potion", "Greater Mana Potion", "Mana Potion", "Lesser Mana Potion", "Minor Mana Potion" };
-        if (me.HealthPercent <= 70 && (!Api.Inventory.OnCooldown(MP) || !Api.Inventory.OnCooldown(HP)))
+        foreach (string hpot in HP)
         {
-            foreach (string hpot in HP)
+            if (HasItem(hpot))
             {
-                if (HasItem(hpot))
-                {
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("Using Healing potion");
-                    Console.ResetColor();
-                    if (Api.Inventory.Use(hpot))
-                    {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        if (me.ManaPercent <= 50 && (!Api.Inventory.OnCooldown(MP) || !Api.Inventory.OnCooldown(HP)))
-        {
-            foreach (string manapot in MP)
-            {
-                if (HasItem(manapot))
-                {
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("Using mana potion");
-                    Console.ResetColor();
-                    if (Api.Inventory.Use(manapot))
-                    {
-                        return true;
-                    }
-                }
-            }
-        }
-        string[] GemTypes = { "Mana Jade", "Mana Citrine", "Mana Ruby", "Mana Emerald", "Mana Sapphire", "Mana Agate" };
-
-        if (me.Mana <= 30 && !Api.Inventory.OnCooldown(GemTypes))
-        {
-            foreach (string gem in GemTypes)
-            {
-                if (HasItem(gem))
-                {
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine($"Using {gem}");
-                    Console.ResetColor();
-
-                    if (Api.Inventory.Use(gem))
-                    {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        // Target distance from the player
-        var targetDistance = target.Position.Distance2D(me.Position);
-
-        if (me.IsDead() || me.IsGhost() || me.IsCasting() || me.IsChanneling()) return false;
-        if (me.Auras.Contains("Drink") || me.Auras.Contains("Food")) return false;
-        var hasaura = me.Auras.Contains("Curse of Stalvan") || me.Auras.Contains("Curse of Blood");
-
-        if (hasaura && Api.Spellbook.CanCast("Remove Lesser Curse"))
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Decursing");
-            Console.ResetColor();
-            if (Api.Spellbook.Cast("Remove Lesser Curse"))
-            {
-                return true;
-            }
-        }
-        if (Api.Spellbook.CanCast("Counterspell") && !Api.Spellbook.OnCooldown("Counterspell") && (target.IsCasting() || target.IsChanneling()))
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Casting Counterspell");
-            Console.ResetColor();
-            if (Api.Spellbook.Cast("Counterspell"))
-            {
-                return true;
-            }
-        }
-        if (Api.Spellbook.CanCast("Evocation") && !Api.Spellbook.OnCooldown("Evocation") && mana <= 10)
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Casting Evocation");
-            Console.ResetColor();
-
-            if (Api.Spellbook.Cast("Evocation"))
-            {
-                return true;
-            }
-        }
-        if (Api.Spellbook.CanCast("Ice Block") && healthPercentage < 20 && !Api.Spellbook.OnCooldown("Ice Block"))
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Casting Ice Block");
-            Console.ResetColor();
-            if (Api.Spellbook.Cast("Ice Block"))
-            {
-                return true;
-            }
-        }
-
-        if (Api.Spellbook.CanCast("Mana Shield") && healthPercentage < 50 && mana > 20)
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Casting Mana Shield");
-            Console.ResetColor();
-            if (Api.Spellbook.Cast("Mana Shield"))
-            {
-                return true;
-            }
-        }
-
-        // Offensive spells
-        if (Api.Spellbook.CanCast("Pyroblast") && !Api.Spellbook.OnCooldown("Pyroblast") && mana > 30)
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Casting Pyroblast");
-            Console.ResetColor();
-            if (Api.Spellbook.Cast("Pyroblast"))
-            
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Using Healing potion");
+                Console.ResetColor();
+                if (Api.Inventory.Use(hpot))
                 {
                     return true;
                 }
-            
-        }
-
-        
-
-        if (Api.Spellbook.CanCast("Scorch") && mana > 10)
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Casting Scorch");
-            Console.ResetColor();
-            if (Api.Spellbook.Cast("Scorch"))
-            {
-                return true;
             }
         }
-
-        if (Api.Spellbook.CanCast("Fire Blast") && mana > 15 && !Api.Spellbook.OnCooldown("Fire Blast") && targetDistance<25)
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Casting Fire Blast");
-            Console.ResetColor();
-            if (Api.Spellbook.Cast("Fire Blast"))
-            {
-                return true;
-            }
-        }
-
-
-        
-        if (Api.Spellbook.CanCast("Fireball") && mana > 20 )
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Casting Fireball");
-            Console.ResetColor();
-            if (Api.Spellbook.Cast("Fireball"))
-            {
-                return true;
-            }
-        }
-        if (Api.Equipment.HasItem(EquipmentSlot.Extra) && Api.HasMacro("Shoot"))
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Ranged weapon is equipped. Attempting to cast Shoot.");
-            Console.ResetColor();
-
-            if (Api.UseMacro("Shoot"))
-            {
-                return true;
-            }
-        }
-        return base.CombatPulse();
     }
 
-    private bool IsNPC(WowUnit unit)
+    if (me.ManaPercent <= 50 && (!Api.Inventory.OnCooldown(MP) || !Api.Inventory.OnCooldown(HP)))
     {
-        if (!IsValid(unit))
+        foreach (string manapot in MP)
         {
-            // If the unit is not valid, consider it not an NPC
-            return false;
-        }
-
-        foreach (var condition in npcConditions)
-        {
-            switch (condition)
+            if (HasItem(manapot))
             {
-                case "Innkeeper" when unit.IsInnkeeper():
-                case "Auctioneer" when unit.IsAuctioneer():
-                case "Banker" when unit.IsBanker():
-                case "FlightMaster" when unit.IsFlightMaster():
-                case "GuildBanker" when unit.IsGuildBanker():
-                case "StableMaster" when unit.IsStableMaster():
-                case "Trainer" when unit.IsTrainer():
-                case "Vendor" when unit.IsVendor():
-                case "QuestGiver" when unit.IsQuestGiver():
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Using mana potion");
+                Console.ResetColor();
+                if (Api.Inventory.Use(manapot))
+                {
                     return true;
+                }
             }
         }
+    }
+    string[] GemTypes = { "Mana Jade", "Mana Citrine", "Mana Ruby", "Mana Emerald", "Mana Sapphire", "Mana Agate" };
 
+    if (me.Mana <= 30 && !Api.Inventory.OnCooldown(GemTypes))
+    {
+        foreach (string gem in GemTypes)
+        {
+            if (HasItem(gem))
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"Using {gem}");
+                Console.ResetColor();
+
+                if (Api.Inventory.Use(gem))
+                {
+                    return true;
+                }
+            }
+        }
+    }
+
+    // Target distance from the player
+    var targetDistance = target.Position.Distance2D(me.Position);
+
+    if (me.IsDead() || me.IsGhost() || me.IsCasting() || me.IsChanneling()) return false;
+    if (me.Auras.Contains("Drink") || me.Auras.Contains("Food")) return false;
+    var hasaura = me.Auras.Contains("Curse of Stalvan") || me.Auras.Contains("Curse of Blood");
+
+    if (hasaura && Api.Spellbook.CanCast("Remove Lesser Curse"))
+    {
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("Decursing");
+        Console.ResetColor();
+        if (Api.Spellbook.Cast("Remove Lesser Curse"))
+        {
+            return true;
+        }
+    }
+    if (Api.Spellbook.CanCast("Counterspell") && !Api.Spellbook.OnCooldown("Counterspell") && (target.IsCasting() || target.IsChanneling()))
+    {
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("Casting Counterspell");
+        Console.ResetColor();
+        if (Api.Spellbook.Cast("Counterspell"))
+        {
+            return true;
+        }
+    }
+    if (Api.Spellbook.CanCast("Evocation") && !Api.Spellbook.OnCooldown("Evocation") && mana <= 10)
+    {
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("Casting Evocation");
+        Console.ResetColor();
+
+        if (Api.Spellbook.Cast("Evocation"))
+        {
+            return true;
+        }
+    }
+    if (Api.Spellbook.CanCast("Ice Block") && healthPercentage < 20 && !Api.Spellbook.OnCooldown("Ice Block"))
+    {
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("Casting Ice Block");
+        Console.ResetColor();
+        if (Api.Spellbook.Cast("Ice Block"))
+        {
+            return true;
+        }
+    }
+
+    if (Api.Spellbook.CanCast("Mana Shield") && healthPercentage < 50 && mana > 20)
+    {
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("Casting Mana Shield");
+        Console.ResetColor();
+        if (Api.Spellbook.Cast("Mana Shield"))
+        {
+            return true;
+        }
+    }
+
+    // Offensive spells
+    if (Api.Spellbook.CanCast("Pyroblast") && !Api.Spellbook.OnCooldown("Pyroblast") && mana > 30)
+    {
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("Casting Pyroblast");
+        Console.ResetColor();
+        if (Api.Spellbook.Cast("Pyroblast"))
+
+        {
+            return true;
+        }
+
+    }
+
+
+
+    if (Api.Spellbook.CanCast("Scorch") && mana > 10)
+    {
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("Casting Scorch");
+        Console.ResetColor();
+        if (Api.Spellbook.Cast("Scorch"))
+        {
+            return true;
+        }
+    }
+
+    if (Api.Spellbook.CanCast("Fire Blast") && mana > 15 && !Api.Spellbook.OnCooldown("Fire Blast") && targetDistance < 25)
+    {
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("Casting Fire Blast");
+        Console.ResetColor();
+        if (Api.Spellbook.Cast("Fire Blast"))
+        {
+            return true;
+        }
+    }
+
+
+
+    if (Api.Spellbook.CanCast("Fireball") && mana > 20)
+    {
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("Casting Fireball");
+        Console.ResetColor();
+        if (Api.Spellbook.Cast("Fireball"))
+        {
+            return true;
+        }
+    }
+    if (Api.Equipment.HasItem(EquipmentSlot.Extra) && Api.HasMacro("Shoot"))
+    {
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("Ranged weapon is equipped. Attempting to cast Shoot.");
+        Console.ResetColor();
+
+        if (Api.UseMacro("Shoot"))
+        {
+            return true;
+        }
+    }
+    if (Api.Spellbook.CanCast("Attack"))
+    {
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("Casting Attack");
+        Console.ResetColor();
+        if (Api.Spellbook.Cast("Attack"))
+        {
+            return true;
+        }
+    }
+    return base.CombatPulse();
+}
+
+private bool IsNPC(WowUnit unit)
+{
+    if (!IsValid(unit))
+    {
+        // If the unit is not valid, consider it not an NPC
         return false;
     }
-    private void LogPlayerStats()
+
+    foreach (var condition in npcConditions)
     {
-        // Variables for player and target instances
-        var me = Api.Player;
-        var target = Api.Target;
-        var mana = me.Mana;
+        switch (condition)
+        {
+            case "Innkeeper" when unit.IsInnkeeper():
+            case "Auctioneer" when unit.IsAuctioneer():
+            case "Banker" when unit.IsBanker():
+            case "FlightMaster" when unit.IsFlightMaster():
+            case "GuildBanker" when unit.IsGuildBanker():
+            case "StableMaster" when unit.IsStableMaster():
+            case "Trainer" when unit.IsTrainer():
+            case "Vendor" when unit.IsVendor():
+            case "QuestGiver" when unit.IsQuestGiver():
+                return true;
+        }
+    }
 
-        // Health percentage of the player
-        var healthPercentage = me.HealthPercent;
+    return false;
+}
+private void LogPlayerStats()
+{
+    // Variables for player and target instances
+    var me = Api.Player;
+    var target = Api.Target;
+    var mana = me.Mana;
+
+    // Health percentage of the player
+    var healthPercentage = me.HealthPercent;
 
 
-        // Target distance from the player
-        var targetDistance = target.Position.Distance2D(me.Position);
+    // Target distance from the player
+    var targetDistance = target.Position.Distance2D(me.Position);
 
 
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine($"{mana} Mana available");
-        Console.WriteLine($"{healthPercentage}% Health available");
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.WriteLine($"{mana} Mana available");
+    Console.WriteLine($"{healthPercentage}% Health available");
+    Console.ResetColor();
+
+
+    if (me.Auras.Contains("Frost Armor")) // Replace "Thorns" with the actual aura name
+    {
+        Console.ForegroundColor = ConsoleColor.Blue;
         Console.ResetColor();
+        var remainingTimeSeconds = me.Auras.TimeRemaining("Frost Armor");
+        var remainingTimeMinutes = remainingTimeSeconds / 60; // Convert seconds to minutes
+        var roundedMinutes = Math.Round(remainingTimeMinutes / 1000, 1); // Round to one decimal place
 
-
-        if (me.Auras.Contains("Frost Armor")) // Replace "Thorns" with the actual aura name
-        {
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.ResetColor();
-            var remainingTimeSeconds = me.Auras.TimeRemaining("Frost Armor");
-            var remainingTimeMinutes = remainingTimeSeconds / 60; // Convert seconds to minutes
-            var roundedMinutes = Math.Round(remainingTimeMinutes / 1000, 1); // Round to one decimal place
-
-            Console.WriteLine($"Remaining time for Frost Armor: {roundedMinutes} minutes");
-            Console.ResetColor();
-        }
-
-
-
-        // Define food and water types
-        string[] waterTypes = { "Conjured Mana Strudel", "Conjured Mountain Spring Water", "Conjured Crystal Water", "Conjured Sparkling Water", "Conjured Mineral Water", "Conjured Spring Water", "Conjured Purified Water", "Conjured Fresh Water", "Conjured Water" };
-        string[] foodTypes = { "Conjured Mana Strudel", "Conjured Cinnamon Roll", "Conjured Sweet Roll", "Conjured Sourdough", "Conjured Pumpernickel", "Conjured Rye", "Conjured Bread", "Conjured Muffin" };
-        // Count food items in the inventory
-        int foodCount = 0;
-        foreach (string foodType in foodTypes)
-        {
-            int count = Api.Inventory.ItemCount(foodType);
-            foodCount += count;
-        }
-
-        // Count water items in the inventory
-        int waterCount = 0;
-        foreach (string waterType in waterTypes)
-        {
-            int count = Api.Inventory.ItemCount(waterType);
-            waterCount += count;
-        }
-
-        // Display the counts of food and water items
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("Current Food Count: " + foodCount);
-        Console.WriteLine("Current Water Count: " + waterCount);
-        Console.ResetColor();
-        var hasaura = me.Auras.Contains("Curse of Stalvan");
-
-        if (Api.Equipment.HasItem(EquipmentSlot.Extra) && Api.HasMacro("Shoot"))
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Wand macro 'Shoot' is present.");
-            Console.ResetColor();
-        }
-        else
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("INGAME ..... Create Macro ");
-            Console.WriteLine("Macro name : Shoot");
-            Console.WriteLine("Macro code : /cast !Shoot");
-
-            Console.WriteLine("Save macro, exit options and when ingame RELOAD UI");
-            Console.ResetColor();
-        }
-
+        Console.WriteLine($"Remaining time for Frost Armor: {roundedMinutes} minutes");
         Console.ResetColor();
     }
+
+
+
+    // Define food and water types
+    string[] waterTypes = { "Conjured Mana Strudel", "Conjured Mountain Spring Water", "Conjured Crystal Water", "Conjured Sparkling Water", "Conjured Mineral Water", "Conjured Spring Water", "Conjured Purified Water", "Conjured Fresh Water", "Conjured Water" };
+    string[] foodTypes = { "Conjured Mana Strudel", "Conjured Cinnamon Roll", "Conjured Sweet Roll", "Conjured Sourdough", "Conjured Pumpernickel", "Conjured Rye", "Conjured Bread", "Conjured Muffin" };
+    // Count food items in the inventory
+    int foodCount = 0;
+    foreach (string foodType in foodTypes)
+    {
+        int count = Api.Inventory.ItemCount(foodType);
+        foodCount += count;
+    }
+
+    // Count water items in the inventory
+    int waterCount = 0;
+    foreach (string waterType in waterTypes)
+    {
+        int count = Api.Inventory.ItemCount(waterType);
+        waterCount += count;
+    }
+
+    // Display the counts of food and water items
+    Console.ForegroundColor = ConsoleColor.Green;
+    Console.WriteLine("Current Food Count: " + foodCount);
+    Console.WriteLine("Current Water Count: " + waterCount);
+    Console.ResetColor();
+    var hasaura = me.Auras.Contains("Curse of Stalvan");
+
+    if (Api.Equipment.HasItem(EquipmentSlot.Extra) && Api.HasMacro("Shoot"))
+    {
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("Wand macro 'Shoot' is present.");
+        Console.ResetColor();
+    }
+    else
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("INGAME ..... Create Macro ");
+        Console.WriteLine("Macro name : Shoot");
+        Console.WriteLine("Macro code : /cast !Shoot");
+
+        Console.WriteLine("Save macro, exit options and when ingame RELOAD UI");
+        Console.ResetColor();
+    }
+
+    Console.ResetColor();
+}
 }
