@@ -30,6 +30,10 @@ public class EraRetPala : Rotation
     {
         return Api.Equipment.HasEnchantment(slot, enchantmentName);
     }
+    private CreatureType GetCreatureType(WowUnit unit)
+    {
+        return unit.Info.GetCreatureType();
+    }
     private bool HasItem(object item) => Api.Inventory.HasItem(item);
     private int debugInterval = 5; // Set the debug interval in seconds
     private DateTime lastDebugTime = DateTime.MinValue;
@@ -71,6 +75,8 @@ public class EraRetPala : Rotation
         var healthPercentage = me.HealthPercent;
         var mana = me.ManaPercent;
         var target = Api.Target;
+        var targetDistance = target.Position.Distance2D(me.Position);
+
 
 
 
@@ -246,6 +252,8 @@ public class EraRetPala : Rotation
         var target = Api.Target;
         var targethp = target.HealthPercent;
         var targetHealth = Api.Target.HealthPercent;
+        var targetDistance = target.Position.Distance2D(me.Position);
+
         if (!me.IsValid() || !target.IsValid() || me.IsDead() || me.IsGhost() || me.IsCasting() || me.IsMoving() || me.IsChanneling() || me.IsMounted() || me.Auras.Contains("Drink") || me.Auras.Contains("Food")) return false;
 
 
