@@ -137,7 +137,10 @@ public class EraFireMage : Rotation
                 Console.ResetColor();
 
                 if (Api.Spellbook.Cast("Frost Armor"))
+                {
                     return true;
+
+                }
             }
 
             if (Api.Spellbook.CanCast("Arcane Intellect") && !me.Auras.Contains("Arcane Intellect", false))
@@ -147,7 +150,10 @@ public class EraFireMage : Rotation
                 Console.ResetColor();
 
                 if (Api.Spellbook.Cast("Arcane Intellect"))
+                {
                     return true;
+
+                }
             }
 
 
@@ -182,6 +188,8 @@ public class EraFireMage : Rotation
                     if (Api.Spellbook.Cast("Conjure Water"))
                     {
                         Console.WriteLine("Conjured water.");
+                        return true;
+
                         // Add further actions if needed after conjuring water
                     }
                 }
@@ -194,6 +202,8 @@ public class EraFireMage : Rotation
                     if (Api.Spellbook.Cast("Conjure Food"))
                     {
                         Console.WriteLine("Conjured Food.");
+                        return true;
+
                         // Add further actions if needed after conjuring food
                     }
                 }
@@ -341,7 +351,9 @@ public class EraFireMage : Rotation
             Console.ResetColor();
 
             if (Api.Spellbook.Cast("Evocation"))
+            {
                 return true;
+            }
         }
         if (Api.Spellbook.CanCast("Ice Block") && healthPercentage < 20 && !Api.Spellbook.OnCooldown("Ice Block"))
         {
@@ -349,7 +361,9 @@ public class EraFireMage : Rotation
             Console.WriteLine("Casting Ice Block");
             Console.ResetColor();
             if (Api.Spellbook.Cast("Ice Block"))
+            {
                 return true;
+            }
         }
 
         if (Api.Spellbook.CanCast("Mana Shield") && healthPercentage < 50 && mana > 20)
@@ -358,20 +372,23 @@ public class EraFireMage : Rotation
             Console.WriteLine("Casting Mana Shield");
             Console.ResetColor();
             if (Api.Spellbook.Cast("Mana Shield"))
+            {
                 return true;
+            }
         }
 
         // Offensive spells
-        if (Api.Spellbook.CanCast("Pyroblast") && !Api.Spellbook.OnCooldown("Fire Blast") && mana > 30)
+        if (Api.Spellbook.CanCast("Pyroblast") && !Api.Spellbook.OnCooldown("Pyroblast") && mana > 30)
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Pyroblast");
             Console.ResetColor();
             if (Api.Spellbook.Cast("Pyroblast"))
-            {
-                lastPyro = DateTime.Now;
-                return true;
-            }
+            
+                {
+                    return true;
+                }
+            
         }
 
         
@@ -382,7 +399,9 @@ public class EraFireMage : Rotation
             Console.WriteLine("Casting Scorch");
             Console.ResetColor();
             if (Api.Spellbook.Cast("Scorch"))
+            {
                 return true;
+            }
         }
 
         if (Api.Spellbook.CanCast("Fire Blast") && mana > 15 && !Api.Spellbook.OnCooldown("Fire Blast") && targetDistance<25)
@@ -391,7 +410,9 @@ public class EraFireMage : Rotation
             Console.WriteLine("Casting Fire Blast");
             Console.ResetColor();
             if (Api.Spellbook.Cast("Fire Blast"))
+            {
                 return true;
+            }
         }
 
 
@@ -402,7 +423,9 @@ public class EraFireMage : Rotation
             Console.WriteLine("Casting Fireball");
             Console.ResetColor();
             if (Api.Spellbook.Cast("Fireball"))
+            {
                 return true;
+            }
         }
         if (Api.Equipment.HasItem(EquipmentSlot.Extra) && Api.HasMacro("Shoot"))
         {
