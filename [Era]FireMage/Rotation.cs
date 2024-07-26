@@ -36,7 +36,6 @@ public class EraFireMage : Rotation
     private bool HasItem(object item) => Api.Inventory.HasItem(item);
     private int debugInterval = 5; // Set the debug interval in seconds
     private DateTime lastDebugTime = DateTime.MinValue;
-    private TimeSpan PyroCD = TimeSpan.FromSeconds(10);
     private DateTime lastPyro = DateTime.MinValue;
 
     public override void Initialize()
@@ -49,7 +48,7 @@ public class EraFireMage : Rotation
         // The simplest calculation for optimal ticks (to avoid key spam and false attempts)
 
         // Assuming wShadow is an instance of some class containing UnitRatings property
-        SlowTick = 1550;
+        SlowTick = 750;
         FastTick = 500 ;
 
         // You can also use this method to add to various action lists.
