@@ -5,6 +5,10 @@ using System.Collections.Generic;
 using wShadow.Warcraft.Classes;
 using wShadow.Warcraft.Defines;
 using wShadow.Warcraft.Managers;
+using wShadow.WowBots;
+using wShadow.WowBots.PartyInfo;
+
+
 
 
 
@@ -91,11 +95,11 @@ public class EraRetPala : Rotation
 
         bool CanSelfBuff = false;
 
-        if (target.Guid.Equals(me.Guid))
-            CanSelfBuff = true;
+        //if (target.Guid.Equals(me.Guid))
+          //  CanSelfBuff = true;
 
-        if (target.Guid.IsEmpty())
-            CanSelfBuff = true;
+        //if (target.Guid.IsEmpty())
+          //  CanSelfBuff = true;
 
 
 

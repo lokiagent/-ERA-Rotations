@@ -35,21 +35,6 @@ public class SoDHunter : Rotation
     private DateTime lastDebugTime = DateTime.MinValue;
     private DateTime lastCallPetTime = DateTime.MinValue;
     private TimeSpan callPetCooldown = TimeSpan.FromSeconds(10);
-    private DateTime lastFeedTime = DateTime.MinValue;
-    private DateTime lastChimeraShotTime = DateTime.MinValue;
-    private TimeSpan chimeraShotCooldown = TimeSpan.FromSeconds(6.5);
-    private DateTime lastFlanking = DateTime.MinValue;
-    private TimeSpan FlankingCooldown = TimeSpan.FromSeconds(30);
-    private DateTime lastMarkLogTime = DateTime.MinValue;
-    private TimeSpan markCooldown = TimeSpan.FromSeconds(10);
-    private DateTime Steady = DateTime.MinValue;
-    private TimeSpan SteadyCD = TimeSpan.FromSeconds(5);
-    private DateTime Explosive = DateTime.MinValue;
-    private TimeSpan ExplosiveCD = TimeSpan.FromSeconds(8);
-    private DateTime Carve = DateTime.MinValue;
-    private TimeSpan CarveCD = TimeSpan.FromSeconds(8);
-    private DateTime Command = DateTime.MinValue;
-    private TimeSpan CommandCD = TimeSpan.FromSeconds(60);
 
 
     public override void Initialize()
@@ -115,109 +100,91 @@ public class SoDHunter : Rotation
         string[] Arrows = { "Thorium Headed Arrow", "Jagged Arrow", "Razor Arrow", "Sharp Arrow", "Rough Arrow", "Doomshot", "Ice Threaded Arrow", "Explosive Arrow" };
         string[] Bullets = { "Thorium Shells", "Ice Threaded Bullet", "Rockshard Pellets", "Mithril Gyro-Shot", "Accurate Slugs", "Hi-Impact Mithril Slugs", "Exploding Shot", "Crafted Solid Shot", "Solid Shot", "Crafted Heavy Shot", "Heavy Shot", "Crafted Light Shot" };
 
-        if (me.IsValid())
+
+
+
+        if (Api.Spellbook.CanCast("Aspect of the Cheetah") && !me.Auras.Contains("Aspect of the Cheetah", false) && !me.IsMounted() && !me.Auras.Contains(415423, false))
+
         {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Casting Aspect of the Cheetah");
+            Console.ResetColor();
 
-            if (Api.HasMacro("Chest") && !me.Auras.Contains(409583, false) && hasLion)
+            if (Api.Spellbook.Cast("Aspect of the Cheetah"))
 
+                return true;
+
+        }
+
+
+
+        if ((!IsValid(pet) || PetHealth <= 0) && Api.Spellbook.CanCast("Call Pet"))
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Casting Call Pet.");
+            Console.ResetColor();
+
+            if (Api.Spellbook.Cast("Call Pet"))
             {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Casting Chest Rune");
-                Console.ResetColor();
-
-                if (Api.UseMacro("Chest"))
-
-                    return true;
-
-            }
-
-
-            // Add logic here for actions when pet's health is low, e.g., healing spells
-
-
-            if (Api.Spellbook.CanCast("Aspect of the Cheetah") && !me.Auras.Contains("Aspect of the Cheetah", false) && !me.IsMounted() && !me.Auras.Contains(415423, false))
-
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Casting Aspect of the Cheetah");
-                Console.ResetColor();
-
-                if (Api.Spellbook.Cast("Aspect of the Cheetah"))
-
-                    return true;
-
-            }
-
-
-
-            if ((DateTime.Now - lastCallPetTime) >= callPetCooldown && (!IsValid(pet) || !pet.IsDead()) && Api.Spellbook.CanCast("Call Pet"))
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Casting Call Pet.");
-                Console.ResetColor();
-
-                if (Api.Spellbook.Cast("Call Pet"))
-                {
-                    lastCallPetTime = DateTime.Now; // Update the lastCallPetTime after successful casting
-                    return true;
-                }
-            }
-            // Additional actions for when the pet is dead
-            if ((!IsValid(pet) || pet.IsDead()) && Api.Spellbook.CanCast("Revive Pet"))
-            {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("Casting Revive Pet");
-                Console.ResetColor();
-
-                if (Api.Spellbook.Cast("Revive Pet"))
-                {
-                    return true;
-                }
-            }
-
-            if (IsValid(pet) && (DateTime.Now - lastFeedTime).TotalMinutes >= 10 && Api.HasMacro("Feed"))
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Feeding pet.");
-                Console.ResetColor();
-
-                if (Api.UseMacro("Feed"))
-                {
-                    lastFeedTime = DateTime.Now; // Update lastFeedTime
-
-                    // Log the estimated time until the next feeding attempt
-                    var nextFeedTime = lastFeedTime.AddMinutes(10);
-                    var timeUntilNextFeed = nextFeedTime - DateTime.Now;
-
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine($"Next feed pet in: {timeUntilNextFeed.TotalMinutes} minutes.");
-                    Console.ResetColor();
-
-                    return true;
-                }
-            }
-            if (IsValid(pet) && PetHealth < 40 && Api.Spellbook.CanCast("Mend Pet") && !pet.Auras.Contains("Mend Pet") && mana > 10)
-            {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("Pet health is low healing him");
-                Console.ResetColor();
-                if (Api.Spellbook.Cast("Mend Pet"))
-
-                    return true;
-            }
-
-            if (Api.Spellbook.CanCast("Aspect of the Hawk") && !me.Auras.Contains("Aspect of the Hawk", false) && !me.Auras.Contains("Aspect of the Cheetah", false) && !me.Auras.Contains(415423, false))
-
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Casting Aspect of the Hawk");
-                Console.ResetColor();
-
-                if (Api.Spellbook.Cast("Aspect of the Hawk"))
-
-                    return true;
+                lastCallPetTime = DateTime.Now; // Update the lastCallPetTime after successful casting
+                return true;
             }
         }
+        if ((!IsValid(pet)||PetHealth<=0) && Api.Spellbook.CanCast("Revive Pet"))
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Ressing Pet");
+            Console.ResetColor();
+
+            if (Api.Spellbook.Cast("Revive Pet"))
+            {
+                return true;
+            }
+        }
+
+        //if (IsValid(pet) && (DateTime.Now - lastFeedTime).TotalMinutes >= 10 && Api.HasMacro("Feed"))
+        //{
+        //    Console.ForegroundColor = ConsoleColor.Green;
+        //    Console.WriteLine("Feeding pet.");
+        //    Console.ResetColor();
+
+        //    if (Api.UseMacro("Feed"))
+        //    {
+        //        lastFeedTime = DateTime.Now; // Update lastFeedTime
+
+        //        // Log the estimated time until the next feeding attempt
+        //        var nextFeedTime = lastFeedTime.AddMinutes(10);
+        //        var timeUntilNextFeed = nextFeedTime - DateTime.Now;
+
+        //        Console.ForegroundColor = ConsoleColor.Yellow;
+        //        Console.WriteLine($"Next feed pet in: {timeUntilNextFeed.TotalMinutes} minutes.");
+        //        Console.ResetColor();
+
+        //        return true;
+        //    }
+        //}
+        if (IsValid(pet) && PetHealth < 40 && Api.Spellbook.CanCast("Mend Pet") && !pet.Auras.Contains("Mend Pet") && mana > 10)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("Pet health is low healing him");
+            Console.ResetColor();
+            if (Api.Spellbook.Cast("Mend Pet"))
+
+                return true;
+        }
+
+        if (Api.Spellbook.CanCast("Aspect of the Hawk") && !me.Auras.Contains("Aspect of the Hawk", false) && !me.Auras.Contains("Aspect of the Cheetah", false) && !me.Auras.Contains(415423, false))
+
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Casting Aspect of the Hawk");
+            Console.ResetColor();
+
+            if (Api.Spellbook.Cast("Aspect of the Hawk"))
+
+                return true;
+        }
+
         var reaction = me.GetReaction(target);
 
         if (target.IsValid())
@@ -270,21 +237,7 @@ public class SoDHunter : Rotation
         if (!me.IsValid() || !target.IsValid() || me.IsDead() || me.IsGhost() || me.IsCasting() || me.IsMoving() || me.IsChanneling() || me.IsMounted() || me.Auras.Contains("Drink") || me.Auras.Contains("Food")) return false;
 
 
-        //runes
-        //legs
-        bool hasFlanking = HasEnchantment(EquipmentSlot.Legs, "Flanking Strike");
-        bool hasCommand = HasEnchantment(EquipmentSlot.Legs, "Kill Command");
-        //hands
-        bool hasChimera = HasEnchantment(EquipmentSlot.Hands, "Chimera Shot");
-        bool hasExplosive = HasEnchantment(EquipmentSlot.Hands, "Explosive Shot");
-        bool hasCarve = HasEnchantment(EquipmentSlot.Hands, "Carve");
-        //chest
-        bool hasLion = HasEnchantment(EquipmentSlot.Chest, "Heart of the Lion");
-        //waist
-        bool hasSteady = HasEnchantment(EquipmentSlot.Waist, "Steady Shot");
-        bool hasSpecialist = HasEnchantment(EquipmentSlot.Waist, "Melee Specialist");
-        //feet
-        bool hasDW = HasEnchantment(EquipmentSlot.Feet, "Dual Wield Specialization");
+
 
         string[] HP = { "Major Healing Potion", "Superior Healing Potion", "Greater Healing Potion", "Healing Potion", "Lesser Healing Potion", "Minor Healing Potion" };
         string[] MP = { "Major Mana Potion", "Superior Mana Potion", "Greater Mana Potion", "Mana Potion", "Lesser Mana Potion", "Minor Mana Potion" };
@@ -323,7 +276,7 @@ public class SoDHunter : Rotation
             }
         }
 
-        if ((!IsValid(pet) || !pet.IsDead()) && Api.Spellbook.CanCast("Call Pet"))
+        if ((!IsValid(pet) || PetHealth <= 0) && Api.Spellbook.CanCast("Call Pet"))
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Call Pet.");
@@ -335,11 +288,10 @@ public class SoDHunter : Rotation
                 return true;
             }
         }
-        // Additional actions for when the pet is dead
-        if ((!IsValid(pet) || pet.IsDead()) && Api.Spellbook.CanCast("Revive Pet"))
+        if ((!IsValid(pet) || PetHealth <= 0) && Api.Spellbook.CanCast("Revive Pet"))
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Casting Revive Pet");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Ressing Pet");
             Console.ResetColor();
 
             if (Api.Spellbook.Cast("Revive Pet"))
@@ -433,27 +385,8 @@ public class SoDHunter : Rotation
                     return true;
 
             }
-            if (Api.HasMacro("Legs") && hasCommand)
-            {
-                if ((DateTime.Now - Command) >= CommandCD)
-                {
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("Casting Legs rune");
-                    Console.ResetColor();
 
-                    if (Api.UseMacro("Legs"))
-                    {
-                        Command = DateTime.Now;
-                        return true;
-                    }
-                }
-                else
-                {
-                    // If the cooldown period for Chimera Shot hasn't elapsed yet
-                    Console.WriteLine("Legs rune is on cooldown. Skipping cast.");
-                }
-            }
-            if (Api.Spellbook.CanCast("Aspect of the Hawk") && !me.Auras.Contains("Aspect of the Hawk", false) && mana >70)
+            if (Api.Spellbook.CanCast("Aspect of the Hawk") && !me.Auras.Contains("Aspect of the Hawk", false) && mana > 70)
 
             {
                 Console.ForegroundColor = ConsoleColor.Green;
@@ -487,26 +420,7 @@ public class SoDHunter : Rotation
                     return true;
             }
 
-            if (target.Auras.Contains("Serpent Sting") && Api.HasMacro("Hands") && hasChimera)
-            {
-                if ((DateTime.Now - lastChimeraShotTime) >= chimeraShotCooldown)
-                {
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("Casting Hands rune");
-                    Console.ResetColor();
 
-                    if (Api.UseMacro("Hands"))
-                    {
-                        lastChimeraShotTime = DateTime.Now;
-                        return true;
-                    }
-                }
-                else
-                {
-                    // If the cooldown period for Chimera Shot hasn't elapsed yet
-                    Console.WriteLine("Hands Rune is on cooldown. Skipping cast.");
-                }
-            }
             if (Api.Spellbook.CanCast("Aimed Shot") && mana > 30 && targethealth > 20)
             {
                 Console.ForegroundColor = ConsoleColor.Green;
@@ -535,11 +449,11 @@ public class SoDHunter : Rotation
                 if (Api.Spellbook.Cast("Auto Shot"))
                     return true;
             }
-        }//end of ranged
+        }
 
         if (!target.IsDead() && targetDistance <= 8)
         {
-            
+
             if (Api.Spellbook.CanCast("Deterrence") && Api.UnfriendlyUnitsNearby(10, true) >= 2 && !Api.Spellbook.OnCooldown("Deterrence"))
             {
                 Console.ForegroundColor = ConsoleColor.Green;
@@ -551,38 +465,7 @@ public class SoDHunter : Rotation
                     return true;
 
             }
-            if (Api.HasMacro("Legs") && hasFlanking && (DateTime.Now - lastFlanking) >= FlankingCooldown)
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Casting Flanking Strike.");
-                Console.ResetColor();
 
-                if (Api.UseMacro("Legs"))
-                {
-                    lastFlanking = DateTime.Now; // Update the lastCallPetTime after successful casting
-                    return true;
-                }
-            }
-            if (Api.HasMacro("Hands") && hasCarve)
-            {
-                if ((DateTime.Now - Carve) >= CarveCD)
-                {
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("Casting Hands rune");
-                    Console.ResetColor();
-
-                    if (Api.UseMacro("Hands"))
-                    {
-                        Carve = DateTime.Now;
-                        return true;
-                    }
-                }
-                else
-                {
-                    // If the cooldown period for Chimera Shot hasn't elapsed yet
-                    Console.WriteLine("Hands Rune is on cooldown. Skipping cast.");
-                }
-            }
             if (Api.Spellbook.CanCast("Wing Clip") && mana > 40 && !target.Auras.Contains("Wing Clip"))
             {
                 Console.ForegroundColor = ConsoleColor.Green;
@@ -592,7 +475,7 @@ public class SoDHunter : Rotation
                 if (Api.Spellbook.Cast("Wing Clip"))
                     return true;
             }
-            
+
             if (Api.Spellbook.CanCast("Raptor Strike") && mana > 15)
             {
                 Console.ForegroundColor = ConsoleColor.Green;
@@ -614,11 +497,11 @@ public class SoDHunter : Rotation
         }
 
 
-        // Check if in combat and if there are multiple targets nearby
 
 
         return base.CombatPulse();
     }
+
     private bool IsNPC(WowUnit unit)
     {
         if (!IsValid(unit))
@@ -675,9 +558,7 @@ public class SoDHunter : Rotation
         Console.ResetColor();
 
 
-        // Existing code...
 
-        // Check the status of the pet and log accordingly
 
         if (IsValid(pet))
         {
@@ -687,116 +568,14 @@ public class SoDHunter : Rotation
             // Additional actions for when the pet is dead
         }
         else
-        if (!IsValid(pet))
+        if ((!IsValid(pet) || PetHealth <= 0))
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("Pet is dead.");
             Console.ResetColor();
             // Additional actions for when the pet's health is low
         }
-        if (me.Auras.Contains(409583, false))
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Has 409583");
-            Console.ResetColor();
-            // Additional actions for when the pet is dead
-        }
-        else
-        if (me.Auras.Contains(409580, false))
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Has 409583");
-            Console.ResetColor();
-            // Additional actions for when the pet is dead
-        }
 
-        // Log the pet's health only when its status changes
-
-        else
-
-                    if (me.Auras.Contains("Heart of the Lion"))
-        {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Hass Heart of the Lion");
-            Console.ResetColor();
-            // Additional actions for when the pet's health is low
-        }
-        //runes
-        //legs
-        bool hasFlanking = HasEnchantment(EquipmentSlot.Legs, "Flanking Strike");
-        if (hasFlanking)
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("hasFlanking");
-            Console.ResetColor();
-
-        }
-        bool hasCommand = HasEnchantment(EquipmentSlot.Legs, "Kill Command");
-        if (hasCommand)
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("hasCommand");
-            Console.ResetColor();
-
-        }
-        //hands
-        bool hasChimera = HasEnchantment(EquipmentSlot.Hands, "Chimera Shot");
-        if (hasChimera)
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("hasChimera");
-            Console.ResetColor();
-
-        }
-        bool hasLion = HasEnchantment(EquipmentSlot.Chest, "Heart of the Lion");
-        if (hasLion)
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("hasLion");
-            Console.ResetColor();
-
-        }
-        bool hasSteady = HasEnchantment(EquipmentSlot.Waist, "Steady Shot");
-        if (hasSteady)
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("hasSteady");
-            Console.ResetColor();
-
-        }
-        bool hasSpecialist = HasEnchantment(EquipmentSlot.Waist, "Melee Specialist");
-        if (hasSpecialist)
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("hasSpecialist");
-            Console.ResetColor();
-
-        }
-        bool hasDW = HasEnchantment(EquipmentSlot.Feet, "Dual Wield Specialization");
-        if (hasDW)
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("hasDW");
-            Console.ResetColor();
-
-        }
-
-        bool hasExplosive = HasEnchantment(EquipmentSlot.Hands, "Explosive Shot");
-        if (hasExplosive)
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("hasExplosive");
-            Console.ResetColor();
-
-        }
-        bool hasCarve = HasEnchantment(EquipmentSlot.Hands, "Carve");
-        if (hasCarve)
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("hasCarve");
-            Console.ResetColor();
-
-        }
 
 
     }
