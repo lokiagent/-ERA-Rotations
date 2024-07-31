@@ -7,7 +7,7 @@ using wShadow.Warcraft.Defines;
 using wShadow.Warcraft.Managers;
 
 
-public class Druid : Rotation
+public class EraBalanceDruid : Rotation
 {
     private bool HasEnchantment(EquipmentSlot slot, string enchantmentName)
     {
@@ -74,7 +74,7 @@ public class Druid : Rotation
         var target = Api.Target;
         var reaction = me.GetReaction(target);
 
-        if ( me.IsDead() || me.IsGhost() || me.IsCasting() || me.IsMoving() || me.IsChanneling() || me.Auras.Contains("Drink") || me.Auras.Contains("Food")) return false;
+        if (me.IsDead() || me.IsGhost() || me.IsCasting() || me.IsMoving() || me.IsChanneling() || me.Auras.Contains("Drink") || me.Auras.Contains("Food")) return false;
         if ((DateTime.Now - lastDebugTime).TotalSeconds >= debugInterval)
         {
             LogPlayerStats();
@@ -148,42 +148,55 @@ public class Druid : Rotation
             }
         }
         if (target.IsValid())
-        { 
-        if (!target.IsDead() && (reaction != UnitReaction.Friendly &&
-             reaction != UnitReaction.Honored &&
-             reaction != UnitReaction.Revered &&
-             reaction != UnitReaction.Exalted) &&
-            mana > 20 && !IsNPC(target))
         {
-
-            if (Api.Spellbook.CanCast("Moonfire") && !target.Auras.Contains("Moonfire"))
+            if (!target.IsDead() && (reaction != UnitReaction.Friendly &&
+                 reaction != UnitReaction.Honored &&
+                 reaction != UnitReaction.Revered &&
+                 reaction != UnitReaction.Exalted) &&
+                mana > 20 && !IsNPC(target))
             {
 
-
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Casting Moonfire");
-                Console.ResetColor();
-
-                if (Api.Spellbook.Cast("Moonfire"))
-                    return true; // Successful cast of Wrath
-                                 // If unable to cast Moonfire, proceed to the next spell
-            }
-            else
-            if (Api.Spellbook.CanCast("Wrath"))
-            {
-
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Casting Wrath");
-                Console.ResetColor();
-
-                if (Api.Spellbook.Cast("Wrath"))
+                if (Api.Spellbook.CanCast("Entangling Roots") && !target.Auras.Contains("Entangling Roots"))
                 {
-                    return true; // Successful cast of Wrath
+
+
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("Casting Entangling Roots");
+                    Console.ResetColor();
+
+                    if (Api.Spellbook.Cast("Entangling Roots"))
+                        return true; // Successful cast of Wrath
+                                     // If unable to cast Moonfire, proceed to the next spell
                 }
+                else
+                if (Api.Spellbook.CanCast("Moonfire") && !target.Auras.Contains("Moonfire"))
+                {
+
+
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("Casting Moonfire");
+                    Console.ResetColor();
+
+                    if (Api.Spellbook.Cast("Moonfire"))
+                        return true; // Successful cast of Wrath
+                                     // If unable to cast Moonfire, proceed to the next spell
+                }
+                else
+                 if (Api.Spellbook.CanCast("Wrath"))
+                {
+
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("Casting Wrath");
+                    Console.ResetColor();
+
+                    if (Api.Spellbook.Cast("Wrath"))
+                    {
+                        return true; // Successful cast of Wrath
+                    }
+                }
+
+
             }
-
-
-        }
         }
         return base.PassivePulse();
     }
@@ -203,9 +216,6 @@ public class Druid : Rotation
         string[] MP = { "Major Mana Potion", "Superior Mana Potion", "Greater Mana Potion", "Mana Potion", "Lesser Mana Potion", "Minor Mana Potion" };
         if (!target.IsValid() || me.IsDead() || me.IsGhost() || me.IsCasting() || me.IsMoving() || me.IsChanneling() || me.IsMounted() || me.Auras.Contains("Drink") || me.Auras.Contains("Food")) return false;
 
-        bool hasSunfire = HasEnchantment(EquipmentSlot.Hands, "Sunfire");
-        bool hasStarsurge = HasEnchantment(EquipmentSlot.Legs, "Starsurge");
-        bool hasStormrage = HasEnchantment(EquipmentSlot.Chest, "Fury of Stormrage");
 
         if (me.HealthPercent <= 70 && (!Api.Inventory.OnCooldown(MP) || !Api.Inventory.OnCooldown(HP)))
         {
@@ -252,7 +262,7 @@ public class Druid : Rotation
             }
         }
 
-        if (Api.Spellbook.CanCast("Healing Touch") && healthPercentage <= 45 && mana >= 20 && me.Auras.Contains("Fury of Stormrage"))
+        if (Api.Spellbook.CanCast("Healing Touch") && healthPercentage <= 45 && mana >= 20)
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Healing Touch");
@@ -281,7 +291,7 @@ public class Druid : Rotation
 
                 return true;
         }
-        if (Api.Spellbook.CanCast("Starfire") && me.Auras.Contains(417157))
+        if (Api.Spellbook.CanCast("Starfire") && me.Auras.Contains(417157) && mana > 10)
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Starfire");
@@ -292,7 +302,7 @@ public class Druid : Rotation
             }
         }
 
-        if (Api.Spellbook.CanCast("Moonfire") && !target.Auras.Contains("Moonfire") && targethealth > 30 && mana >= 5)
+        if (Api.Spellbook.CanCast("Moonfire") && !target.Auras.Contains("Moonfire") && targethealth > 30 && mana >= 10)
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Moonfire");
@@ -302,43 +312,9 @@ public class Druid : Rotation
                 return true;
             }
         }
-        if (Api.HasMacro("Hands") && !target.Auras.Contains("Sunfire") && mana >= 5)
-        {
-            if (hasSunfire)
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Casting Sunfire");
-                Console.ResetColor();
-                if (Api.UseMacro("Hands"))
-                {
 
-                    return true;
-                }
 
-            }
-        }
-        if (Api.HasMacro("Legs"))
-        {
-            if ((DateTime.Now - Starsurge) >= StarsurgeCD)
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-
-                if (hasStarsurge)
-                {
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("Casting Legs rune");
-                    Console.ResetColor();
-                    if (Api.UseMacro("Legs"))
-                    {
-                        Starsurge = DateTime.Now;
-
-                        return true;
-                    }
-
-                }
-            }
-        }
-        if (Api.Spellbook.CanCast("Wrath") && me.Auras.Contains(408248))
+        if (Api.Spellbook.CanCast("Wrath") && me.Auras.Contains(408248) && mana > 10)
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Wrath with Eclipse");
@@ -348,7 +324,7 @@ public class Druid : Rotation
                 return true;
             }
         }
-        if (Api.Spellbook.CanCast("Wrath"))
+        if (Api.Spellbook.CanCast("Wrath") && mana > 10)
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Wrath");
@@ -357,6 +333,15 @@ public class Druid : Rotation
             {
                 return true;
             }
+        }
+        if (Api.Spellbook.CanCast("Attack"))
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Casting Attack");
+            Console.ResetColor();
+
+            if (Api.Spellbook.Cast("Attack"))
+                return true;
         }
 
         return base.CombatPulse();
@@ -412,23 +397,20 @@ public class Druid : Rotation
         }
 
         if (target.IsValid() && !target.IsDead())
-{
-    Console.WriteLine("Target is valid and not dead");
-    
-    Console.ForegroundColor = ConsoleColor.Red;
-    Console.WriteLine($"{targethealth}% Target Health");
-    Console.WriteLine($"Target Reaction: {reaction}");
-    Console.ResetColor();
-}
-else
-{
-    Console.WriteLine("Target is not valid or is dead");
-}
+        {
+            Console.WriteLine("Target is valid and not dead");
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"{targethealth}% Target Health");
+            Console.WriteLine($"Target Reaction: {reaction}");
+            Console.ResetColor();
+        }
+        else
+        {
+            Console.WriteLine("Target is not valid or is dead");
+        }
 
 
-        bool hasSunfire = HasEnchantment(EquipmentSlot.Hands, "Sunfire");
-        bool hasStarsurge = HasEnchantment(EquipmentSlot.Legs, "Starsurge");
-        bool hasStormrage = HasEnchantment(EquipmentSlot.Chest, "Fury of Stormrage");
 
         if (me.Auras.Contains("Mark of the Wild"))
         {
@@ -453,30 +435,8 @@ else
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Can cast Mark of the Wild");
             Console.ResetColor();
-            
-        }
-
-        if (hasSunfire)
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("HasSunfire");
-            Console.ResetColor();
 
         }
 
-        if (hasStormrage)
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("hasStormrage");
-            Console.ResetColor();
-
-        }
-        if (hasStarsurge)
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("hasStarsurge");
-            Console.ResetColor();
-
-        }
     }
 }
