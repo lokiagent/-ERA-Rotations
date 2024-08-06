@@ -361,6 +361,15 @@ public override bool CombatPulse()
             return true;
         }
     }
+    if (Api.Spellbook.CanCast("Frost Nova") && targetDistance <= 8 && !Api.Spellbook.OnCooldown("Frost Nova"))
+    {
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("Casting Frost Nova");
+        Console.ResetColor();
+
+        if (Api.Spellbook.Cast("Frost Nova"))
+            return true;
+    }
     if (Api.Spellbook.CanCast("Evocation") && !Api.Spellbook.OnCooldown("Evocation") && mana <= 10)
     {
         Console.ForegroundColor = ConsoleColor.Green;
