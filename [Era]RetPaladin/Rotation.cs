@@ -385,7 +385,7 @@ public class EraRetPala : Rotation
                 return true;
 
         }
-        if (Api.Spellbook.CanCast("Exorcism") && (target.CreatureType == CreatureType.Undead || target.CreatureType == CreatureType.Demon) && targetDistance <= 30)
+        if (Api.Spellbook.CanCast("Exorcism")  && targetDistance <= 30)
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Exorcism");
