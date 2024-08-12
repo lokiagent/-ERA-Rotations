@@ -118,7 +118,7 @@ public class SoDHunter : Rotation
 
 
 
-        if ((!IsValid(pet) || PetHealth <= 0) && Api.Spellbook.CanCast("Call Pet"))
+        if ((DateTime.Now - lastCallPetTime) >= callPetCooldown && (!IsValid(pet) || PetHealth <= 0) && Api.Spellbook.CanCast("Call Pet"))
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Call Pet.");
