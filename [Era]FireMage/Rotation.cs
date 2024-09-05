@@ -6,8 +6,6 @@ using wShadow.Warcraft.Classes;
 using wShadow.Warcraft.Defines;
 using wShadow.Warcraft.Managers;
 
-
-
 public class EraFireMage : Rotation
 {
     private List<string> npcConditions = new List<string>
@@ -248,7 +246,7 @@ public class EraFireMage : Rotation
 
 
         // If none of the conditions are met or casting both spells fail
-    
+
         return base.PassivePulse();
 
     }
@@ -266,6 +264,13 @@ public class EraFireMage : Rotation
 
         string[] HP = { "Major Healing Potion", "Superior Healing Potion", "Greater Healing Potion", "Healing Potion", "Lesser Healing Potion", "Minor Healing Potion" };
         string[] MP = { "Major Mana Potion", "Superior Mana Potion", "Greater Mana Potion", "Mana Potion", "Lesser Mana Potion", "Minor Mana Potion" };
+        // Target distance from the player
+        var targetDistance = target.Position.Distance2D(me.Position);
+
+        if (me.IsDead() || me.IsGhost() || me.IsCasting() || me.IsChanneling()) return false;
+        if (me.Auras.Contains("Drink") || me.Auras.Contains("Food")) return false;
+        var hasaura = me.Auras.Contains("Curse of Stalvan") || me.Auras.Contains("Curse of Blood");
+
         if (me.HealthPercent <= 70 && (!Api.Inventory.OnCooldown(MP) || !Api.Inventory.OnCooldown(HP)))
         {
             foreach (string hpot in HP)
@@ -319,12 +324,7 @@ public class EraFireMage : Rotation
             }
         }
 
-        // Target distance from the player
-        var targetDistance = target.Position.Distance2D(me.Position);
 
-        if (me.IsDead() || me.IsGhost() || me.IsCasting() || me.IsChanneling()) return false;
-        if (me.Auras.Contains("Drink") || me.Auras.Contains("Food")) return false;
-        var hasaura = me.Auras.Contains("Curse of Stalvan") || me.Auras.Contains("Curse of Blood");
 
 
         if (Api.Spellbook.CanCast("Frost Nova") && targetDistance <= 8 && !Api.Spellbook.OnCooldown("Frost Nova"))
@@ -333,184 +333,14 @@ public class EraFireMage : Rotation
             Console.WriteLine("Casting Frost Nova");
             Console.ResetColor();
 
-<<<<<<< HEAD
-                if (Api.Inventory.Use(gem))
-                {
-                    return true;
-                }
+            if (Api.Spellbook.Cast("Frost Nova"))
+            {
+                return true;
             }
         }
-    }
-
-    // Target distance from the player
-    var targetDistance = target.Position.Distance2D(me.Position);
-
-    if (me.IsDead() || me.IsGhost() || me.IsCasting() || me.IsChanneling()) return false;
-    if (me.Auras.Contains("Drink") || me.Auras.Contains("Food")) return false;
-    var hasaura = me.Auras.Contains("Curse of Stalvan") || me.Auras.Contains("Curse of Blood");
-
-    if (hasaura && Api.Spellbook.CanCast("Remove Lesser Curse"))
-    {
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("Decursing");
-        Console.ResetColor();
-        if (Api.Spellbook.Cast("Remove Lesser Curse"))
-        {
-            return true;
-        }
-    }
-    if (Api.Spellbook.CanCast("Counterspell") && !Api.Spellbook.OnCooldown("Counterspell") && (target.IsCasting() || target.IsChanneling()))
-    {
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("Casting Counterspell");
-        Console.ResetColor();
-        if (Api.Spellbook.Cast("Counterspell"))
-        {
-            return true;
-        }
-    }
-    if (Api.Spellbook.CanCast("Frost Nova") && targetDistance <= 8 && !Api.Spellbook.OnCooldown("Frost Nova"))
-    {
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("Casting Frost Nova");
-        Console.ResetColor();
-
-        if (Api.Spellbook.Cast("Frost Nova"))
-            return true;
-    }
-    if (Api.Spellbook.CanCast("Evocation") && !Api.Spellbook.OnCooldown("Evocation") && mana <= 10)
-    {
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("Casting Evocation");
-        Console.ResetColor();
-
-        if (Api.Spellbook.Cast("Evocation"))
-        {
-            return true;
-        }
-    }
-    if (Api.Spellbook.CanCast("Ice Block") && healthPercentage < 20 && !Api.Spellbook.OnCooldown("Ice Block"))
-    {
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("Casting Ice Block");
-        Console.ResetColor();
-        if (Api.Spellbook.Cast("Ice Block"))
-        {
-            return true;
-        }
-    }
-
-    if (Api.Spellbook.CanCast("Mana Shield") && healthPercentage < 50 && mana > 20)
-    {
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("Casting Mana Shield");
-        Console.ResetColor();
-        if (Api.Spellbook.Cast("Mana Shield"))
-        {
-            return true;
-        }
-    }
-
-    // Offensive spells
-    if (Api.Spellbook.CanCast("Pyroblast") && !Api.Spellbook.OnCooldown("Pyroblast") && mana > 30)
-    {
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("Casting Pyroblast");
-        Console.ResetColor();
-        if (Api.Spellbook.Cast("Pyroblast"))
-
-        {
-            return true;
-        }
-
-    }
 
 
 
-    if (Api.Spellbook.CanCast("Scorch") && mana > 10)
-    {
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("Casting Scorch");
-        Console.ResetColor();
-        if (Api.Spellbook.Cast("Scorch"))
-        {
-            return true;
-        }
-    }
-
-    if (Api.Spellbook.CanCast("Fire Blast") && mana > 15 && !Api.Spellbook.OnCooldown("Fire Blast") && targetDistance < 25)
-    {
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("Casting Fire Blast");
-        Console.ResetColor();
-        if (Api.Spellbook.Cast("Fire Blast"))
-        {
-            return true;
-        }
-    }
-
-
-
-    if (Api.Spellbook.CanCast("Fireball") && mana > 20)
-    {
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("Casting Fireball");
-        Console.ResetColor();
-        if (Api.Spellbook.Cast("Fireball"))
-        {
-            return true;
-        }
-    }
-    if (Api.Equipment.HasItem(EquipmentSlot.Extra) && Api.HasMacro("Shoot"))
-    {
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("Ranged weapon is equipped. Attempting to cast Shoot.");
-        Console.ResetColor();
-
-        if (Api.UseMacro("Shoot"))
-        {
-            return true;
-        }
-    }
-    if (Api.Spellbook.CanCast("Attack"))
-    {
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("Casting Attack");
-        Console.ResetColor();
-        if (Api.Spellbook.Cast("Attack"))
-        {
-            return true;
-        }
-    }
-    return base.CombatPulse();
-}
-
-private bool IsNPC(WowUnit unit)
-{
-    if (!IsValid(unit))
-    {
-        // If the unit is not valid, consider it not an NPC
-        return false;
-    }
-
-    foreach (var condition in npcConditions)
-    {
-        switch (condition)
-        {
-            case "Innkeeper" when unit.IsInnkeeper():
-            case "Auctioneer" when unit.IsAuctioneer():
-            case "Banker" when unit.IsBanker():
-            case "FlightMaster" when unit.IsFlightMaster():
-            case "GuildBanker" when unit.IsGuildBanker():
-            case "StableMaster" when unit.IsStableMaster():
-            case "Trainer" when unit.IsTrainer():
-            case "Vendor" when unit.IsVendor():
-            case "QuestGiver" when unit.IsQuestGiver():
-=======
-            if (Api.Spellbook.Cast("Frost Nova"))
->>>>>>> b23d0067cd4d7186558aed2cf2371cc7f721b1e5
-                return true;
-        }
 
         if (hasaura && Api.Spellbook.CanCast("Remove Lesser Curse"))
         {
@@ -531,6 +361,15 @@ private bool IsNPC(WowUnit unit)
             {
                 return true;
             }
+        }
+        if (Api.Spellbook.CanCast("Frost Nova") && targetDistance <= 8 && !Api.Spellbook.OnCooldown("Frost Nova"))
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Casting Frost Nova");
+            Console.ResetColor();
+
+            if (Api.Spellbook.Cast("Frost Nova"))
+                return true;
         }
         if (Api.Spellbook.CanCast("Evocation") && !Api.Spellbook.OnCooldown("Evocation") && mana <= 10)
         {
@@ -638,6 +477,9 @@ private bool IsNPC(WowUnit unit)
         }
         return base.CombatPulse();
     }
+
+
+
 
     private bool IsNPC(WowUnit unit)
     {
