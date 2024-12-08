@@ -440,7 +440,7 @@ public class SoDHunter : Rotation
                     return true;
             }
 
-            if (Api.Spellbook.CanCast("Auto Shot"))
+            if (Api.Spellbook.CanCast("Auto Shot") && !me.IsShooting())
             {
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Casting Auto Shot");
@@ -485,7 +485,7 @@ public class SoDHunter : Rotation
                 if (Api.Spellbook.Cast("Raptor Strike"))
                     return true;
             }
-            if (Api.Spellbook.CanCast("Attack"))
+            if (Api.Spellbook.CanCast("Attack") && !me.IsAutoAttacking())
             {
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Casting Attack");

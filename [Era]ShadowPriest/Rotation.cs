@@ -308,7 +308,7 @@ public class EraShadowPriest : Rotation
             }
         }
 
-        if (Api.Spellbook.CanCast("Smite") && mana > 10 && !me.Auras.Contains("Shadowform", false))
+        if (Api.Spellbook.CanCast("Smite") && mana > 50 && !me.Auras.Contains("Shadowform", false))
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Smite");
@@ -317,7 +317,7 @@ public class EraShadowPriest : Rotation
 
                 return true;
         }
-        if (Api.Equipment.HasItem(EquipmentSlot.Extra) && Api.HasMacro("Shoot"))
+        if (Api.Equipment.HasItem(EquipmentSlot.Extra) && Api.HasMacro("Shoot") && !me.IsShooting())
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Ranged weapon is equipped. Attempting to cast Shoot.");
@@ -328,7 +328,7 @@ public class EraShadowPriest : Rotation
                 return true;
             }
         }
-        if (Api.Spellbook.CanCast("Attack"))
+        if (Api.Spellbook.CanCast("Attack") && !me.IsAutoAttacking())
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Attack");

@@ -194,7 +194,16 @@ public class EraBalanceDruid : Rotation
                         return true; // Successful cast of Wrath
                     }
                 }
-
+                if (Api.Spellbook.CanCast("Attack") && !me.IsAutoAttacking())
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("Casting Attack");
+                    Console.ResetColor();
+                    if (Api.Spellbook.Cast("Attack"))
+                    {
+                        return true;
+                    }
+                }
 
             }
         }

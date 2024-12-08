@@ -5,16 +5,13 @@ using System.Collections.Generic;
 using wShadow.Warcraft.Classes;
 using wShadow.Warcraft.Defines;
 using wShadow.Warcraft.Managers;
-using wShadow.WowBots;
-using wShadow.WowBots.PartyInfo;
-
-
-public class RogueNoStealth : Rotation
+public class Warrior : Rotation
 {
-    private bool HasEnchantment(EquipmentSlot slot, string enchantmentName)
-    {
-        return Api.Equipment.HasEnchantment(slot, enchantmentName);
-    }
+
+    private int debugInterval = 5; // Set the debug interval in seconds
+    private DateTime lastDebugTime = DateTime.MinValue;
+
+
     private List<string> npcConditions = new List<string>
     {
         "Innkeeper", "Auctioneer", "Banker", "FlightMaster", "GuildBanker",
@@ -31,10 +28,8 @@ public class RogueNoStealth : Rotation
         }
         return true;
     }
-
     private bool HasItem(object item) => Api.Inventory.HasItem(item);
-    private int debugInterval = 5; // Set the debug interval in seconds
-    private DateTime lastDebugTime = DateTime.MinValue;
+
 
     public override void Initialize()
     {
@@ -66,58 +61,54 @@ public class RogueNoStealth : Rotation
     }
     public override bool PassivePulse()
     {
-        // Variables for player and target instances
         var me = Api.Player;
+        var healthPercentage = me.HealthPercent;
         var target = Api.Target;
+        var rage = me.Rage/10;
 
+
+
+        if (me.IsDead() || me.IsGhost() || me.IsCasting() || me.IsMoving() || me.IsChanneling() || me.IsMounted() || me.Auras.Contains("Drink") || me.Auras.Contains("Food")) return false;
+        var targetDistance = target.Position.Distance2D(me.Position);
         if ((DateTime.Now - lastDebugTime).TotalSeconds >= debugInterval)
         {
             LogPlayerStats();
-            lastDebugTime = DateTime.Now; // Update lastDebugTime
+            lastDebugTime = DateTime.Now;
         }
-        // Health percentage of the player
-        var healthPercentage = me.HealthPercent;
-
-        // Power percentages for different resources
-        var energy = me.Energy; // Energy
-        var points = me.ComboPoints;
-
-        // Target distance from the player
-        var targetDistance = target.Position.Distance2D(me.Position);
-
-        if (me.IsDead() || me.IsGhost() || me.IsCasting() || me.IsMoving() || me.IsChanneling() || me.IsMounted() || me.Auras.Contains("Drink") || me.Auras.Contains("Food")) return false;
-
-
-        if (Api.Spellbook.CanCast("Sprint") && !Api.Spellbook.OnCooldown("Sprint"))
+        var reaction = me.GetReaction(target);
+        if (target.IsValid())
         {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Casting Sprint");
-            Console.ResetColor();
-            if (Api.Spellbook.Cast("Sprint"))
+
+            if (!target.IsDead() &&
+    (reaction != UnitReaction.Friendly &&
+     reaction != UnitReaction.Honored &&
+     reaction != UnitReaction.Revered &&
+     reaction != UnitReaction.Exalted) &&
+     !IsNPC(target) && healthPercentage > 80)
             {
-                return true;
+                if (Api.Spellbook.CanCast("Charge")  && targetDistance > 8 && targetDistance < 25 && !Api.Spellbook.OnCooldown("Charge"))
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("Charge");
+                    Console.ResetColor();
+
+                    if (Api.Spellbook.Cast("Charge"))
+                        return true;
+                }
             }
         }
-
         return base.PassivePulse();
-
     }
+
 
     public override bool CombatPulse()
     {
-        // Variables for player and target instances
         var me = Api.Player;
-        var target = Api.Target;
-        if ((DateTime.Now - lastDebugTime).TotalSeconds >= debugInterval)
-        {
-            LogPlayerStats();
-            lastDebugTime = DateTime.Now; // Update lastDebugTime
-        }
-        // Health percentage of the player
         var healthPercentage = me.HealthPercent;
+        var rage = me.Rage/10;
+        var target = Api.Target;
         var targethealth = target.HealthPercent;
-        var energy = me.Energy; // Energy
-        var points = me.ComboPoints;
+        if (!me.IsValid() || !target.IsValid() || me.IsDead() || me.IsGhost() || me.IsCasting() || me.IsMoving() || me.IsChanneling() || me.IsMounted() || me.Auras.Contains("Drink") || me.Auras.Contains("Food")) return false;
 
         string[] HP = { "Major Healing Potion", "Superior Healing Potion", "Greater Healing Potion", "Healing Potion", "Lesser Healing Potion", "Minor Healing Potion" };
 
@@ -139,126 +130,116 @@ public class RogueNoStealth : Rotation
         }
 
 
-        // Target distance from the player
-        var targetDistance = target.Position.Distance2D(me.Position);
-
-        if (!me.IsValid() || !target.IsValid() || me.IsDead() || me.IsGhost() || me.IsCasting() || me.IsMoving() || me.IsChanneling() || me.IsMounted() || me.Auras.Contains("Drink") || me.Auras.Contains("Food")) return false;
-
-
-
-        if (Api.Spellbook.CanCast("Adrenaline Rush") && !Api.Spellbook.OnCooldown("Adrenaline Rush"))
+        if (Api.Spellbook.CanCast("Bloodrage") && me.HealthPercent >= 85 && !Api.Spellbook.OnCooldown("Bloodrage"))
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Casting Adrenaline Rush");
+            Console.WriteLine("Casting Bloodrage");
             Console.ResetColor();
+            if (Api.Spellbook.Cast("Bloodrage"))
 
-            if (Api.Spellbook.Cast("Adrenaline Rush"))
+                return true;
+        }
+        if (Api.Spellbook.CanCast("Hamstring") && targethealth <= 30 && !target.Auras.Contains("Hamstring"))
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Casting Hamstring");
+            Console.ResetColor();
+            if (Api.Spellbook.Cast("Hamstring"))
+
+                return true;
+        }
+        if (!me.Auras.Contains("Battle Shout") && Api.Spellbook.CanCast("Battle Shout") && rage > 10)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Casting Battle Shout");
+            Console.ResetColor();
+            if (Api.Spellbook.Cast("Battle Shout"))
+
                 return true;
         }
 
-        if (Api.Spellbook.CanCast("Kick") && !Api.Spellbook.OnCooldown("Kick")  && (target.IsCasting() || target.IsChanneling()))
+        
+
+        if (Api.Spellbook.CanCast("Execute") && targethealth <= 20)
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Casting Kick");
+            Console.WriteLine("Casting Execute");
             Console.ResetColor();
-            if (Api.Spellbook.Cast("Kick"))
-            {
-                return true;
-            }
-        }
-        else if (Api.Spellbook.CanCast("Kidney Shot") && !Api.Spellbook.OnCooldown("Kidney Shot")  && energy >= 25 && points >= 1 && (target.IsCasting() || target.IsChanneling()))
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Casting Kidney Shot");
-            Console.ResetColor();
+            if (Api.Spellbook.Cast("Execute"))
 
-            if (Api.Spellbook.Cast("Kidney Shot"))
-            {
-                return true;
-            }
-        }
-        else if (Api.Spellbook.CanCast("Gouge") && !Api.Spellbook.OnCooldown("Gouge") && energy >= 45 && (target.IsCasting() || target.IsChanneling()))
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Casting Gouge");
-            Console.ResetColor();
-            if (Api.Spellbook.Cast("Gouge"))
-            {
-                return true;
-            }
-        }
-
-
-
-        if (Api.Spellbook.CanCast("Evasion") && Api.UnfriendlyUnitsNearby(5, true) >= 2 && !Api.Spellbook.OnCooldown("Evasion"))
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"Casting Evasion");
-            Console.ResetColor();
-
-            if (Api.Spellbook.Cast("Evasion"))
                 return true;
         }
-        if (Api.Spellbook.HasSpell("Blade Flurry") && Api.UnfriendlyUnitsNearby(5, true) >= 2 && !Api.Spellbook.OnCooldown("Blade Flurry") && energy >= 25)
+        if (Api.Spellbook.CanCast("Rend") && targethealth >= 30 && !target.Auras.Contains("Rend") && rage >10) 
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"Casting Blade Flurry ");
+            Console.WriteLine("Casting Rend");
             Console.ResetColor();
+            if (Api.Spellbook.Cast("Rend"))
 
-            if (Api.Spellbook.Cast("Blade Flurry"))
                 return true;
         }
-        if (Api.Spellbook.HasSpell("Rupture") && points >= 2 && !target.Auras.Contains("Rupture") && energy >= 25)
+        if (Api.Spellbook.CanCast("Thunder Clap") && !target.Auras.Contains("Thunder Clap") && rage >20 && targethealth >= 30)// && Api.UnitsTargetingMe(5, true).Length >= 2)
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"Casting Rupture ");
+            Console.WriteLine("Casting Thunder Clap");
             Console.ResetColor();
+            if (Api.Spellbook.Cast("Thunder Clap"))
 
-            if (Api.Spellbook.Cast("Rupture"))
                 return true;
         }
-        if (Api.Spellbook.HasSpell("Slice and Dice") && points >= 2 && !me.Auras.Contains("Slice and Dice") && energy >= 25)
+        if (Api.Spellbook.CanCast("Sunder Armor") && !target.Auras.Contains("Sunder Armor") && target.Auras.GetStacks("Sunder Armor") < 5)
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"Casting Slice and Dice ");
+            Console.WriteLine("Casting Sunder Armor");
             Console.ResetColor();
+            if (Api.Spellbook.Cast("Sunder Armor"))
 
-            if (Api.Spellbook.Cast("Slice and Dice"))
                 return true;
         }
-        if (Api.Spellbook.CanCast("Eviscerate") && points >= 3 && energy >= 35)
+        if (!me.Auras.Contains("Battle Shout") && Api.Spellbook.CanCast("Battle Shout") && rage >10)
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"Casting Eviscerate ");
+            Console.WriteLine("Casting Battle Shout");
             Console.ResetColor();
+            if (Api.Spellbook.Cast("Battle Shout"))
 
-            if (Api.Spellbook.Cast("Eviscerate"))
                 return true;
+
         }
-        if (Api.Spellbook.CanCast("Sinister Strike") && energy >= 45)
+
+        if (Api.Spellbook.CanCast("Overpower") && rage >5 )
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"Casting Sinister Strike ");
+            Console.WriteLine("Casting Overpower");
             Console.ResetColor();
+            if (Api.Spellbook.Cast("Overpower"))
 
-            if (Api.Spellbook.Cast("Sinister Strike"))
                 return true;
+
+        }
+        if (Api.Spellbook.CanCast("Heroic Strike") && rage>15)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Casting Heroic Strike");
+            Console.ResetColor();
+            if (Api.Spellbook.Cast("Heroic Strike"))
+
+                return true;
+
         }
         if (Api.Spellbook.CanCast("Attack") && !me.IsAutoAttacking())
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Attack");
             Console.ResetColor();
-
             if (Api.Spellbook.Cast("Attack"))
+
                 return true;
+
         }
-
-
-
-
         return base.CombatPulse();
     }
+
 
     private bool IsNPC(WowUnit unit)
     {
@@ -289,26 +270,16 @@ public class RogueNoStealth : Rotation
     }
     private void LogPlayerStats()
     {
-        // Variables for player and target instances
         var me = Api.Player;
-        var target = Api.Target;
 
-        // Health percentage of the player
+        var rage = me.Rage/10;
         var healthPercentage = me.HealthPercent;
-
-        var energy = me.Energy; // Energy
-        var points = me.ComboPoints;
-
-        // Target distance from the player
-        var targetDistance = target.Position.Distance2D(me.Position);
-
-
+       
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine($"{energy}% Energy available");
+        Console.WriteLine($"{rage} Rage available");
         Console.WriteLine($"{healthPercentage}% Health available");
-        Console.WriteLine($"{points} points available");
-
         Console.ResetColor();
+
 
 
     }

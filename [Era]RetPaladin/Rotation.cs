@@ -233,7 +233,7 @@ public class EraRetPala : Rotation
                     if (Api.Spellbook.Cast("Judgement"))
                         return true;
                 }
-            else  if (Api.Spellbook.CanCast("Attack"))
+            else  if (Api.Spellbook.CanCast("Attack") && !me.IsAutoAttacking())
                 {
                     Api.Spellbook.Cast("Attack");
                     Console.WriteLine("Attacking");
@@ -467,7 +467,7 @@ public class EraRetPala : Rotation
         }
 
         
-        if (Api.Spellbook.CanCast("Attack"))
+        if (Api.Spellbook.CanCast("Attack") && !me.IsAutoAttacking())
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Attack");
