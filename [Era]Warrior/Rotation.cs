@@ -178,7 +178,7 @@ public class Warrior : Rotation
 
                 return true;
         }
-        if (Api.Spellbook.CanCast("Thunder Clap") && !target.Auras.Contains("Thunder Clap") && rage >20 && targethealth >= 30)// && Api.UnitsTargetingMe(5, true).Length >= 2)
+        if (Api.Spellbook.CanCast("Thunder Clap") && !target.Auras.Contains("Thunder Clap") && rage >20 && targethealth >= 30 && Api.UnfriendlyUnitsNearby(5, true) >= 2 )
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Thunder Clap");

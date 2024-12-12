@@ -215,6 +215,34 @@ public class EraRetPala : Rotation
             }
 
         }
+        if (!me.Auras.Contains("Seal of Command") && Api.Spellbook.CanCast("Seal of Command"))
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Casting Seal of Command");
+            Console.ResetColor();
+            if (Api.Spellbook.Cast("Seal of Command"))
+                return true;
+        }
+        if (!me.Auras.Contains("Seal of Wisdom") && Api.Spellbook.CanCast("Seal of Wisdom") && !Api.Spellbook.OnCooldown("Seal of Wisdom") && !me.Auras.Contains("Seal of Command") && mana > 15)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Casting Seal of Wisdom");
+            Console.ResetColor();
+            if (Api.Spellbook.Cast("Seal of Wisdom"))
+
+                return true;
+
+        }
+        else if (!me.Auras.Contains("Seal of Righteousness") && Api.Spellbook.CanCast("Seal of Righteousness") && !Api.Spellbook.OnCooldown("Seal of Righteousness") && !me.Auras.Contains("Seal of Wisdom") && !me.Auras.Contains("Seal of Command") && mana > 15)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Casting Seal of Righteousness");
+            Console.ResetColor();
+            if (Api.Spellbook.Cast("Seal of Righteousness"))
+
+                return true;
+
+        }
         var reaction = me.GetReaction(target);
         if (target.IsValid())
         {
@@ -224,7 +252,7 @@ public class EraRetPala : Rotation
              reaction != UnitReaction.Revered &&
              reaction != UnitReaction.Exalted) &&
             mana > 20 && !IsNPC(target))
-                if (Api.Spellbook.CanCast("Judgement") && targetDistance > 5 && targetDistance < 30 && !Api.Spellbook.OnCooldown("Judgement"))
+                if (Api.Spellbook.CanCast("Judgement") && targetDistance > 5 && targetDistance <10 && targetDistance < 10 && !Api.Spellbook.OnCooldown("Judgement"))
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("Casting Judgement");
