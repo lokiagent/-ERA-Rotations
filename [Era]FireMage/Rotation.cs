@@ -118,7 +118,7 @@ public class EraFireMage : Rotation
             // Add further actions if needed after conjuring water
             //}
             //}
-            if (Api.Spellbook.CanCast("Ice Armor") && !me.Auras.Contains("Ice Armor"))
+            if (Api.Spellbook.CanCast("Ice Armor") && !me.Auras.Contains("Ice Armor",true))
             {
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Casting Ice Armor");
@@ -128,7 +128,7 @@ public class EraFireMage : Rotation
                     return true;
             }
 
-            if (Api.Spellbook.CanCast("Frost Armor") && !me.Auras.Contains("Frost Armor") && !me.Auras.Contains("Ice Armor"))
+            if (Api.Spellbook.CanCast("Frost Armor") && !me.Auras.Contains("Frost Armor",true) && !me.Auras.Contains("Ice Armor", true))
             {
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Casting Frost Armor");
@@ -141,7 +141,7 @@ public class EraFireMage : Rotation
                 }
             }
 
-            if (Api.Spellbook.CanCast("Arcane Intellect") && !me.Auras.Contains("Arcane Intellect", false))
+            if (Api.Spellbook.CanCast("Arcane Intellect") && !me.Auras.Contains("Arcane Intellect", true))
             {
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Casting Arcane Intellect");

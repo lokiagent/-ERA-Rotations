@@ -89,7 +89,7 @@ public class EraShadowPriest : Rotation
             return false;
         }
 
-        if (Api.Spellbook.CanCast("Renew") && !me.Auras.Contains("Renew") && healthPercentage < 80)
+        if (Api.Spellbook.CanCast("Renew") && !me.Auras.Contains("Renew",true) && healthPercentage < 80)
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Renew");
@@ -99,7 +99,7 @@ public class EraShadowPriest : Rotation
                 return true;
             }
         }
-        if (Api.Spellbook.CanCast("Power Word: Fortitude") && !me.Auras.Contains("Power Word: Fortitude"))
+        if (Api.Spellbook.CanCast("Power Word: Fortitude") && !me.Auras.Contains("Power Word: Fortitude",true))
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Power Word: Fortitude");
@@ -109,7 +109,7 @@ public class EraShadowPriest : Rotation
                 return true;
             }
         }
-        if (Api.Spellbook.CanCast("Shadow Protection") && !me.Auras.Contains("Shadow Protection"))
+        if (Api.Spellbook.CanCast("Shadow Protection") && !me.Auras.Contains("Shadow Protection",true))
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Shadow Protection");
@@ -119,7 +119,7 @@ public class EraShadowPriest : Rotation
                 return true;
             }
         }
-        if (Api.Spellbook.CanCast("Inner Fire") && !me.Auras.Contains("Inner Fire"))
+        if (Api.Spellbook.CanCast("Inner Fire") && !me.Auras.Contains("Inner Fire",true))
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Inner Fire");
@@ -129,7 +129,7 @@ public class EraShadowPriest : Rotation
                 return true;
             }
         }
-        if (Api.Spellbook.CanCast("Power Word: Shield") && !me.Auras.Contains("Power Word: Shield") && me.InCombat())
+        if (Api.Spellbook.CanCast("Power Word: Shield") && !me.Auras.Contains("Power Word: Shield",true) && me.InCombat())
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Power Word: Shield");
@@ -140,7 +140,7 @@ public class EraShadowPriest : Rotation
             }
         }
 
-        if (!me.Auras.Contains("Shadowform", false) && Api.Spellbook.CanCast("Shadowform"))
+        if (!me.Auras.Contains("Shadowform", false) && Api.Spellbook.CanCast("Shadowform",true))
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Shadowform");
@@ -257,7 +257,7 @@ public class EraShadowPriest : Rotation
 
         // Target distance from the player
         var targetDistance = target.Position.Distance2D(me.Position);
-        if (Api.Spellbook.CanCast("Power Word: Shield") && !me.Auras.Contains("Power Word: Shield") && mana > 15 && !me.Auras.Contains("Weakened Soul"))
+        if (Api.Spellbook.CanCast("Power Word: Shield") && !me.Auras.Contains("Power Word: Shield",true) && mana > 15 && !me.Auras.Contains("Weakened Soul",true))
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Power Word: Shield");
@@ -277,7 +277,7 @@ public class EraShadowPriest : Rotation
                 return true;
             }
         }
-        if (Api.Spellbook.CanCast("Shadow Word: Pain") && !target.Auras.Contains("Shadow Word: Pain") && targethealth >= 30 && mana > 10)
+        if (Api.Spellbook.CanCast("Shadow Word: Pain") && !target.Auras.Contains("Shadow Word: Pain",true) && targethealth >= 30 && mana > 10)
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Shadow Word: Pain");
@@ -287,7 +287,7 @@ public class EraShadowPriest : Rotation
                 return true;
             }
         }
-        if (Api.Spellbook.CanCast("Vampiric Embrace") && !target.Auras.Contains("Vampiric Embrace") && targethealth >= 30 && mana > 10)
+        if (Api.Spellbook.CanCast("Vampiric Embrace") && !target.Auras.Contains("Vampiric Embrace",true) && targethealth >= 30 && mana > 10)
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Vampiric Embrace");
@@ -308,7 +308,7 @@ public class EraShadowPriest : Rotation
             }
         }
 
-        if (Api.Spellbook.CanCast("Smite") && mana > 50 && !me.Auras.Contains("Shadowform", false))
+        if (Api.Spellbook.CanCast("Smite") && mana > 50 && !me.Auras.Contains("Shadowform", true))
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Smite");
