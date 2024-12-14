@@ -93,13 +93,6 @@ public class EraRetPala : Rotation
             lastDebugTime = DateTime.Now; // Update lastDebugTime
         }
 
-        bool CanSelfBuff = false;
-
-        //if (target.Guid.Equals(me.Guid))
-          //  CanSelfBuff = true;
-
-        //if (target.Guid.IsEmpty())
-          //  CanSelfBuff = true;
 
 
 
@@ -413,7 +406,9 @@ public class EraRetPala : Rotation
                 return true;
 
         }
-        if (Api.Spellbook.CanCast("Exorcism")  && targetDistance <= 30)
+        CreatureType targetCreatureType = GetCreatureType(target);
+
+        if (Api.Spellbook.CanCast("Exorcism")  && targetDistance <= 30 && (targetCreatureType == CreatureType.Undead || targetCreatureType == CreatureType.Demon) && mana>=80)
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Exorcism");
