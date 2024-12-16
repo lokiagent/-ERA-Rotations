@@ -10,7 +10,10 @@ public class Warrior : Rotation
 
     private int debugInterval = 5; // Set the debug interval in seconds
     private DateTime lastDebugTime = DateTime.MinValue;
-
+    private CreatureType GetCreatureType(WowUnit unit)
+    {
+        return unit.Info.GetCreatureType();
+    }
 
     private List<string> npcConditions = new List<string>
     {
@@ -169,7 +172,8 @@ public class Warrior : Rotation
 
                 return true;
         }
-        if (Api.Spellbook.CanCast("Rend") && targethealth >= 30 && !target.Auras.Contains("Rend") && rage >10) 
+        CreatureType targetCreatureType = GetCreatureType(target);
+        if (Api.Spellbook.CanCast("Rend") && targethealth >= 30 && !target.Auras.Contains("Rend",true) && rage >10 && targetCreatureType != CreatureType.Mechanical) 
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Rend");
@@ -178,7 +182,7 @@ public class Warrior : Rotation
 
                 return true;
         }
-        if (Api.Spellbook.CanCast("Thunder Clap") && !target.Auras.Contains("Thunder Clap") && rage >20 && targethealth >= 30 && Api.UnfriendlyUnitsNearby(5, true) >= 2 )
+        if (Api.Spellbook.CanCast("Thunder Clap") && !target.Auras.Contains("Thunder Clap",true) && rage >20 && targethealth >= 30 && Api.UnfriendlyUnitsNearby(5, true) >= 2 )
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Thunder Clap");
@@ -187,7 +191,7 @@ public class Warrior : Rotation
 
                 return true;
         }
-        if (Api.Spellbook.CanCast("Sunder Armor") && !target.Auras.Contains("Sunder Armor",true) && target.Auras.GetStacks("Sunder Armor") < 5)
+        if (Api.Spellbook.CanCast("Sunder Armor") && target.Auras.GetStacks("Sunder Armor") < 2)
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Sunder Armor");
@@ -196,7 +200,7 @@ public class Warrior : Rotation
 
                 return true;
         }
-        if (!me.Auras.Contains("Battle Shout",true) && Api.Spellbook.CanCast("Battle Shout") && rage >10)
+        if (!me.Auras.Contains("Battle Shout") && Api.Spellbook.CanCast("Battle Shout") && rage >10)
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Casting Battle Shout");
@@ -207,16 +211,16 @@ public class Warrior : Rotation
 
         }
 
-        //if (Api.Spellbook.CanCast("Overpower") && rage >5 )
-        //{
-        //    Console.ForegroundColor = ConsoleColor.Green;
-        //    Console.WriteLine("Casting Overpower");
-        //    Console.ResetColor();
-        //    if (Api.Spellbook.Cast("Overpower"))
+        if (Api.Spellbook.CanCast("Overpower") && rage >5 )
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Casting Overpower");
+            Console.ResetColor();
+            if (Api.Spellbook.Cast("Overpower"))
 
-        //        return true;
+                return true;
 
-        //}
+        }
         if (Api.Spellbook.CanCast("Heroic Strike") && rage>15)
         {
             Console.ForegroundColor = ConsoleColor.Green;
