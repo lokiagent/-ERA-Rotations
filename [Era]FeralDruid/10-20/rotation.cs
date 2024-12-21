@@ -5,7 +5,7 @@ using wShadow.Warcraft.Classes;
 using wShadow.Warcraft.Defines;
 using wShadow.Warcraft.Managers;
 
-public class EraFeralDruid : Rotation
+public class EraFeralDruidBear : Rotation
 {
     private List<string> npcConditions = new List<string>
     {
@@ -30,9 +30,10 @@ public class EraFeralDruid : Rotation
         var distance = Api.Distance3D(Api.Me, target);
         var healthPercentage = me.HealthPercent;
         var mana = me.ManaPercent;
+        var bearFormCost = Api.Spellbook.SpellCost("Bear Form");
 
-        // Heal if health is below 50% and ensure mana to shift back
-        if (healthPercentage <= 50)
+        // Healing logic: Drop Bear Form, heal, and rebuff
+        if (healthPercentage < 50)
         {
             if (me.Auras.Contains("Bear Form"))
             {
@@ -58,56 +59,37 @@ public class EraFeralDruid : Rotation
                 return Api.Spellbook.Cast("Healing Touch");
             }
 
-            return false; // Wait until healed
+            // Ensure mana to return to Bear Form
+            if (mana >= bearFormCost)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Shifting back to Bear Form");
+                Console.ResetColor();
+                return Api.Spellbook.Cast("Bear Form");
+            }
+
+            return false; // Wait for enough mana
         }
 
-        // Cast at range
-        if (distance > 5 && distance <= 30)
+        // Ensure Bear Form for combat
+        if (!me.Auras.Contains("Bear Form"))
         {
-            if (Api.Spellbook.CanCast("Entangling Roots") && !target.Auras.Contains("Entangling Roots"))
+            if (Api.Spellbook.CanCast("Bear Form") && mana >= bearFormCost)
             {
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Casting Entangling Roots");
+                Console.WriteLine("Shifting to Bear Form");
                 Console.ResetColor();
-                return Api.Spellbook.Cast("Entangling Roots");
+                return Api.Spellbook.Cast("Bear Form");
             }
 
-            if (Api.Spellbook.CanCast("Moonfire") && !target.Auras.Contains("Moonfire"))
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Casting Moonfire");
-                Console.ResetColor();
-                return Api.Spellbook.Cast("Moonfire");
-            }
-
-            if (Api.Spellbook.CanCast("Wrath"))
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Casting Wrath");
-                Console.ResetColor();
-                return Api.Spellbook.Cast("Wrath");
-            }
+            return false; // Wait for enough mana to shift
         }
 
-        // Melee combat
+        // In Bear Form: Melee Combat
         if (distance <= 5)
         {
-            // Shift to Bear Form if not already in it
-            if (!me.Auras.Contains("Bear Form"))
-            {
-                if (Api.Spellbook.CanCast("Bear Form") && mana >= 10)
-                {
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("Shifting to Bear Form");
-                    Console.ResetColor();
-                    return Api.Spellbook.Cast("Bear Form");
-                }
-
-                return false; // Wait until enough mana to shift
-            }
-
-            // Bear Form abilities
-            if (Api.Spellbook.CanCast("Mangle") && !target.Auras.Contains("Mangle"))
+            // Use Mangle if the debuff isn't applied
+            if (Api.Spellbook.CanCast("Mangle") && !target.Auras.Contains("Mangle (Bear)"))
             {
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Casting Mangle");
@@ -115,6 +97,7 @@ public class EraFeralDruid : Rotation
                 return Api.Spellbook.Cast("Mangle");
             }
 
+            // Spam Maul
             if (Api.Spellbook.CanCast("Maul"))
             {
                 Console.ForegroundColor = ConsoleColor.Green;
