@@ -1,4 +1,4 @@
-using System;
+- using System;
 using System.Threading;
 using wShadow.Templates;
 using System.Collections.Generic;
@@ -89,7 +89,7 @@ public class EraBalanceDruid : Rotation
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Casting Mark of the Wild");
                 Console.ResetColor();
-                if (Api.Spellbook.Cast("Mark of the Wild"))
+                if (Api.Spellbook.Cast("Mark of the Wild", Api.GUIDs.Myself))
 
                     return true;
             }
@@ -98,7 +98,7 @@ public class EraBalanceDruid : Rotation
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Casting Thorns");
                 Console.ResetColor();
-                if (Api.Spellbook.Cast("Thorns"))
+                if (Api.Spellbook.Cast("Thorns", Api.GUIDs.Myself))
 
                     return true;
             }
@@ -108,7 +108,7 @@ public class EraBalanceDruid : Rotation
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Casting Omen of Clarity");
                 Console.ResetColor();
-                if (Api.Spellbook.Cast("Omen of Clarity"))
+                if (Api.Spellbook.Cast("Omen of Clarity", Api.GUIDs.Myself))
 
                     return true;
             }
@@ -117,7 +117,7 @@ public class EraBalanceDruid : Rotation
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Casting Rejuvenation");
                 Console.ResetColor();
-                if (Api.Spellbook.Cast("Rejuvenation"))
+                if (Api.Spellbook.Cast("Rejuvenation", Api.GUIDs.Myself))
                     return true;
             }
 
@@ -126,7 +126,7 @@ public class EraBalanceDruid : Rotation
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Casting Regrowth");
                 Console.ResetColor();
-                if (Api.Spellbook.Cast("Regrowth"))
+                if (Api.Spellbook.Cast("Regrowth", Api.GUIDs.Myself))
                     return true;
             }
             if (Api.Spellbook.CanCast("Healing Touch") && healthPercentage <= 30)
@@ -134,7 +134,7 @@ public class EraBalanceDruid : Rotation
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Casting Healing Touch");
                 Console.ResetColor();
-                if (Api.Spellbook.Cast("Healing Touch"))
+                if (Api.Spellbook.Cast("Healing Touch", Api.GUIDs.Myself))
                     return true;
             }
             if (Api.Spellbook.CanCast("Moonkin Form") && !me.Auras.Contains("Moonkin Form", false))
@@ -157,15 +157,20 @@ public class EraBalanceDruid : Rotation
             {
 
                 if (Api.Spellbook.CanCast("Entangling Roots") && !target.Auras.Contains("Entangling Roots"))
-                {
+{
+    double distanceToTarget = Api.Distance3D(Api.Me, target); // Get the 3D distance
 
+    if (distanceToTarget > 5) // Check if target is farther than 5 units
+    {
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("Casting Entangling Roots");
+        Console.ResetColor();
 
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("Casting Entangling Roots");
-                    Console.ResetColor();
-
-                    if (Api.Spellbook.Cast("Entangling Roots"))
-                        return true; // Successful cast of Wrath
+        if (Api.Spellbook.Cast("Entangling Roots"))
+            return true;
+    }
+}
+ // Successful cast of Wrath
                                      // If unable to cast Moonfire, proceed to the next spell
                 }
                 else
