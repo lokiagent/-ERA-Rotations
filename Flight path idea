@@ -1,0 +1,40 @@
+“/run TaxiNodeName(slot)”- will be used in the following macro to provide a number for each flight path when talking to the flight master.
+
+/run for node = 1, NumTaxiNodes() do print(node .. ": " .. TaxiNodeName(node)) end
+
+“/run TakeTaxiNode(slot)”- will be used when you figure out what number your desired flight path is. Replace “slot” with the flight path number.
+
+The following is an alternative method that was recommended, but I couldn’t get it to work.
+
+For the following, replace “Grassy Cline” with the name of the place you want to go.
+
+/run local n = "Grassy Cline"; for i=1, NUM_TAXI_BUTTONS do if TaxiNodeName(_G["TaxiButton"..i]:GetID()):lower():find(n:lower()) then TakeTaxiNode(i) return; end end PlaySound(47355);
+
+
+
+-- Function to take a flight point by name
+function TakeFlightPointByName(flightPointName)
+    -- Convert the desired flight point name to lowercase for case-insensitive comparison
+    local desiredName = flightPointName:lower()
+
+    -- Iterate through all taxi nodes
+    for i = 1, NumTaxiNodes() do
+        -- Get the name of the current taxi node and convert it to lowercase
+        local nodeName = TaxiNodeName(i):lower()
+        
+        -- Check if the current node name matches the desired flight point name
+        if nodeName:find(desiredName) then
+            -- Take the flight to the matched node
+            TakeTaxiNode(i)
+            -- Optionally play a sound to confirm the action
+            PlaySound(47355)
+            return
+        end
+    end
+
+    -- If no match is found, print a message
+    print("Flight point not found: " .. flightPointName)
+end
+
+-- Example usage: Call the function with your desired flight point name
+TakeFlightPointByName("Crossroads")
