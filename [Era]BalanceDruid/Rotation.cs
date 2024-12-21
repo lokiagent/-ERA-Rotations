@@ -118,34 +118,42 @@ public class EraBalanceDruid : Rotation
         return false;
     }
 
-    private bool CCOrAttackTarget(WowUnit target, WowUnit me)
+  private bool CCOrAttackTarget(WowUnit target, WowUnit me)
+{
+    double distance = Api.Distance3D(Api.Me, target);
+
+    // Cast Entangling Roots if target is between 5 and 30 yards
+    if (Api.Spellbook.CanCast("Entangling Roots") &&
+        !target.Auras.Contains("Entangling Roots") &&
+        distance <= 30 && distance > 5)
     {
-        if (Api.Spellbook.CanCast("Entangling Roots") && !target.Auras.Contains("Entangling Roots") && Api.Distance3D(Api.Me, target) > 5)
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Casting Entangling Roots");
-            Console.ResetColor();
-            return Api.Spellbook.Cast("Entangling Roots");
-        }
-
-        if (Api.Spellbook.CanCast("Moonfire") && !target.Auras.Contains("Moonfire"))
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Casting Moonfire");
-            Console.ResetColor();
-            return Api.Spellbook.Cast("Moonfire");
-        }
-
-        if (Api.Spellbook.CanCast("Wrath"))
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Casting Wrath");
-            Console.ResetColor();
-            return Api.Spellbook.Cast("Wrath");
-        }
-
-        return false;
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine($"Casting Entangling Roots at {distance:F1} yards");
+        Console.ResetColor();
+        return Api.Spellbook.Cast("Entangling Roots");
     }
+
+    // Cast Moonfire if not already applied
+    if (Api.Spellbook.CanCast("Moonfire") && !target.Auras.Contains("Moonfire"))
+    {
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("Casting Moonfire");
+        Console.ResetColor();
+        return Api.Spellbook.Cast("Moonfire");
+    }
+
+    // Cast Wrath as fallback
+    if (Api.Spellbook.CanCast("Wrath"))
+    {
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("Casting Wrath");
+        Console.ResetColor();
+        return Api.Spellbook.Cast("Wrath");
+    }
+
+    return false;
+}
+
 
     private bool AttackWithSpells(WowUnit target, WowUnit me)
     {
