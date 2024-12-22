@@ -134,7 +134,7 @@ public class EraBalanceDruid : Rotation
                 mana > 20 && !IsNPC(target))
             {
 
-                if (Api.Spellbook.CanCast("Entangling Roots") && !target.Auras.Contains("Entangling Roots")) && TargetDistance <= 30 && TargetDistance >= 5)
+                if (Api.Spellbook.CanCast("Entangling Roots") && !target.Auras.Contains("Entangling Roots") && TargetDistance <= 30 && TargetDistance >= 5)
                 {
                     if (CastSpell("Entangling Roots"))
                         return true;
